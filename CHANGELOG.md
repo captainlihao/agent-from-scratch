@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.6] - 并发 tool_calls
+
+### Changed
+- `src/mini_agent/agent.py`：`agent_loop` 里 tool_calls 执行从串行 for 循环改为 `ThreadPoolExecutor` 并发；`pool.map` 保证结果按原序回灌
+
+### Why
+- 同一轮的多个 tool_calls 互不依赖，串行执行浪费时间。
+- `ThreadPoolExecutor` 是"最小改动 + 足够好的并发"——不需要把整个调用链 async 化。
+- `pool.map` 保证结果顺序与 tool_calls 原序一致，回灌顺序安全。
+- v0.4 的 `_ask_lock` 在并发场景生效：防止多个 ASK 权限交互交错。
+
 ## [v0.5] - 流式输出
 
 ### Changed

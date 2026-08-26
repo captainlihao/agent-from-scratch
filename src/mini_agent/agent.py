@@ -2,6 +2,7 @@
 
 import http.client
 import json
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 
 from mini_agent.tools import registry, executor
@@ -92,17 +93,25 @@ def agent_loop(messages):
         if not msg.get("tool_calls"):
             return msg.get("content", "")
 
-        # 有 tool_calls：串行执行，结果作为 role=tool 回灌
-        for tc in msg["tool_calls"]:
+        # 有 tool_calls：并发执行，结果按原顺序作为 role=tool 回灌
+        # 同一轮的多个 tool_calls 互不依赖，用线程池并发执行以加速
+        tool_calls = msg["tool_calls"]
+
+        def _run(tc):
             name = tc["function"]["name"]
             args = json.loads(tc["function"]["arguments"])
             result = executor.execute(name, args)
-            print(f"  执行结果: {result}")
+            print(f"  执行 {name} -> {result}")
+            return tc["id"], str(result)
 
+        with ThreadPoolExecutor(max_workers=len(tool_calls)) as pool:
+            results = list(pool.map(_run, tool_calls))
+
+        for tool_call_id, content in results:
             messages.append({
                 "role": "tool",
-                "tool_call_id": tc["id"],
-                "content": str(result),
+                "tool_call_id": tool_call_id,
+                "content": content,
             })
 
     return "达到最大迭代次数"
