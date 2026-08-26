@@ -1,6 +1,6 @@
 # mini_agent 操作手册
 
-> 本手册跟随最新版本更新。当前对应版本：**v0.3**（文件读写工具：read_file/write_file）。
+> 本手册跟随最新版本更新。当前对应版本：**v0.4**（权限闸门：write_file 走 ASK）。
 
 ## 1. 环境准备
 
@@ -58,26 +58,32 @@ python -m mini_agent
 
 ---
 
-## 3. 当前能力（v0.3）
+## 3. 当前能力（v0.4）
 
-v0.3 引入了文件读写工具：
+v0.4 引入了权限闸门，有副作用的工具执行前会问用户：
 
 ### 3.1 工具
 
-| 工具 | 参数 | 说明 |
-|---|---|---|
-| `calculate` | `expression: str` | 计算数学表达式（仅数字与 `+-*/()` ） |
-| `read_file` | `path: str` | 读取文本文件内容 |
-| `write_file` | `path: str, content: str` | 将内容写入文本文件 |
+| 工具 | 参数 | 权限 | 说明 |
+|---|---|---|---|
+| `calculate` | `expression: str` | allow | 计算数学表达式（仅数字与 `+-*/()` ） |
+| `read_file` | `path: str` | allow | 读取文本文件内容 |
+| `write_file` | `path: str, content: str` | **ASK** | 写文件，每次执行前问用户 |
 
-### 3.2 工具调用流程
+### 3.2 权限交互
+`write_file` 执行前会提示：
+```
+允许执行 write_file({...})? [once/always/reject]
+```
+- `once`：本次允许，下次再问
+- `always`：本轮运行内总是允许，不再问
+- 其他输入：拒绝执行，工具返回拒绝原因给 LLM
+
+### 3.3 工具调用流程
 1. LLM 返回 `tool_calls`（指定工具名 + 参数）
-2. `ToolExecutor` 执行对应 handler，异常捕获返回错误信息
-3. 结果作为 `role=tool` 消息回灌，进入下一轮
-4. LLM 拿着工具结果生成最终回复（无 tool_calls 则结束）
-
-### 3.3 无权限交互
-v0.3 所有工具直接执行，不问用户（v0.4 才加权限闸门）。
+2. `ToolExecutor` 先过权限闸门（`PermissionGate.guard`）
+3. 通过则调 handler，失败则捕获异常返回错误信息给 LLM
+4. 结果作为 `role=tool` 消息回灌，进入下一轮
 
 ### 3.4 相对路径约定
 工具的相对路径（如 `examples/input.txt`）从**项目根目录** `mini_agent/` 起算：
@@ -114,6 +120,12 @@ python -c "from mini_agent.tools import registry; print([t.name for t in registr
 
 ### Q2：任务没完成就停了
 可能触发 `MAX_ITERATIONS=10` 上限，agent 返回 `"达到最大迭代次数"`。改 `config.py` 调高即可，但注意长对话会累积上下文。
+
+### Q3：工具失败直接报错退出
+这是有意为之——agent loop 不加 try/except 兜底，保持核心逻辑清晰。工具层（`ToolExecutor.execute`）会捕获 handler 异常并返回错误信息给 LLM，但 loop 本身的异常会向上抛。
+
+### Q4：write_file 被拒绝
+检查权限交互的输入。选 `reject` 或输错字符会拒绝。重新运行即可。
 
 ### Q3：中文乱码（Windows 控制台）
 `__main__.py` 已对 win32 设 `sys.stdout.reconfigure(encoding="utf-8")`。若仍乱码，PowerShell 执行 `chcp 65001` 切到 UTF-8。

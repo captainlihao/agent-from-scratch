@@ -1,11 +1,13 @@
 """Tool 定义、注册中心、执行器。
 
-v0.2 版：无权限闸门（v0.4 才加）。
-Executor 直接调 handler，异常捕获返回错误信息给 LLM。
+v0.4 版：ToolExecutor 加权限闸门（PermissionGate）。
+Executor 先过闸门再调 handler，异常捕获返回错误信息给 LLM。
 """
 
 from dataclasses import dataclass
 from typing import Any, Callable
+
+from mini_agent.permission import PermissionGate
 
 
 # ============================================================
@@ -87,15 +89,22 @@ class ToolExecutor:
     Tool 执行器。
 
     Registry 负责"找到 Tool"
-    Executor 负责"执行 Tool"
+    Executor 负责"执行 Tool"（先过权限闸门）
     """
 
-    def __init__(self, registry: ToolRegistry):
+    def __init__(self, registry: ToolRegistry, gate: PermissionGate | None = None):
         self.registry = registry
+        self.gate = gate or PermissionGate()
 
     def execute(self, name: str, arguments: dict):
         """根据 Tool 名称和参数执行 Tool。"""
         tool = self.registry.get(name)
+
+        # ① 权限闸门：返回 None=放行，返回 str=拒绝原因
+        denied = self.gate.guard(name, arguments)
+        if denied:
+            print(f"[Permission] {denied}")
+            return denied
 
         print(f"[Executor] 执行 Tool: {name}")
         print(f"[Executor] 参数: {arguments}")

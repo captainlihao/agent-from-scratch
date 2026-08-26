@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.4] - 权限闸门
+
+### Added
+- `src/mini_agent/permission.py`：`PermissionPolicy`（allow/deny/ask 三态）+ `PermissionGate`（检查+交互+锁）
+- `doc/teaching/04-permission-gate.md`：第四课教学文档
+
+### Changed
+- `src/mini_agent/tools/base.py`：`ToolExecutor` 加 `gate` 参数，`execute` 里先过 `gate.guard` 再调 handler
+- `src/mini_agent/tools/__init__.py`：import PermissionGate（executor 自动创建默认 gate）
+- `tests/test_tools.py`：write_file 用放行策略绕过 ASK；新增 DENY 策略测试
+
+### Why
+- v0.3 的 write_file 直接执行不问人，有覆盖重要文件的风险。
+- 三态（allow/deny/ask）覆盖"总是允许/总是禁止/看情况"三种现实需求，比两态更灵活。
+- 拒绝不是报错而是工具结果，回灌给 LLM 让它调整策略——容错在工具层。
+- `_ask_lock` 为 v0.6 并发 tool_calls 预留，防止多个权限提示交错。
+
 ## [v0.3] - 文件读写工具
 
 ### Added
