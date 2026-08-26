@@ -26,7 +26,7 @@
 
 ### Added
 - `src/mini_agent/permission.py`：`PermissionPolicy`（allow/deny/ask 三态）+ `PermissionGate`（检查+交互+锁）
-- `doc/teaching/04-permission-gate.md`：第四课教学文档
+- `docs/tutorials/04-permission-gate.md`：第四课教学文档
 
 ### Changed
 - `src/mini_agent/tools/base.py`：`ToolExecutor` 加 `gate` 参数，`execute` 里先过 `gate.guard` 再调 handler
@@ -44,7 +44,7 @@
 ### Added
 - `src/mini_agent/tools/file.py`：`read_file`/`write_file` 工具
 - `examples/input.txt`、`examples/input2.txt`：示例文件
-- `doc/teaching/03-file-tools.md`：第三课教学文档
+- `docs/tutorials/03-file-tools.md`：第三课教学文档
 
 ### Changed
 - `src/mini_agent/tools/__init__.py`：注册 read_file/write_file
@@ -62,7 +62,7 @@
 - `src/mini_agent/tools/calc.py`：`calculate` 工具（数学表达式计算，正则白名单防注入）
 - `src/mini_agent/tools/__init__.py`：注册中心，创建 registry + executor 并注册 calculate
 - `tests/test_tools.py`：工具 smoke test（registry/calculate/异常处理）
-- `doc/teaching/02-first-tool.md`：第二课教学文档
+- `docs/tutorials/02-first-tool.md`：第二课教学文档
 
 ### Changed
 - `src/mini_agent/agent.py`：`call_llm` 加 `tools` 参数（function calling 协议）；`agent_loop` 加 tool_calls 执行 + `role=tool` 回灌
@@ -81,10 +81,10 @@
 - `src/mini_agent/config.py`：`BASE_URL`/`API_KEY`/`MODEL`/`MAX_ITERATIONS`（硬编码）
 - `src/mini_agent/__init__.py`：包入口
 - `tests/test_loop.py`：import 链路 smoke test
-- `doc/teaching/01-minimal-loop.md`：第一课教学文档
-- `doc/teaching/README.md`：教学路径索引
-- `doc/plans/teaching-repo-plan.md`：多阶段教学仓库完整方案
-- `doc/operation/manual.md`：操作手册（v0.1 版）
+- `docs/tutorials/01-minimal-loop.md`：第一课教学文档
+- `docs/tutorials/README.md`：教学路径索引
+- `docs/plans/teaching-repo-plan.md`：多阶段教学仓库完整方案
+- `docs/operation/manual.md`：操作手册（v0.1 版）
 
 ### Why
 - 从最小可用的对话 loop 起步，先讲清"什么是 agent loop"：messages 列表、调 LLM、判断结束条件。

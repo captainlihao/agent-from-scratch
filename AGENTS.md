@@ -4,7 +4,7 @@
 
 `mini_agent` 是一个**逐步生长的编程 agent**：从最小可用的 agent loop 起步，按需增加工具与能力，目标是能独立完成基础的编程任务（读写改文件、跑命令、跑测试、简单多步任务）。
 
-> 本仓库为多阶段教学仓库，按 git tag `v0.1` → `v1.0` 顺序学习，见 `doc/teaching/`。
+> 本仓库为多阶段教学仓库，按 git tag `v0.1` → `v1.0` 顺序学习，见 `docs/tutorials/`。
 
 设计原则：
 - **零第三方依赖**（仅 Python 标准库），保持自包含、易部署。
@@ -35,13 +35,13 @@ mini_agent/
 │   ├── test_loop.py        # import 链路 smoke test
 │   └── test_tools.py       # 工具 smoke test
 ├── examples/               # 示例 IO 文件
-└── doc/
+└── docs/
     ├── README.txt          # 文档目录说明
     ├── governance/         # 治理文档：约束、规范、决策记录
     ├── plans/               # 计划文档：路线图、功能计划、任务拆解
     ├── operation/          # 操作文档：运行手册、使用指南
     │   └── manual.md       # 操作手册
-    └── teaching/           # 教学文档：按版本切片的教程
+    └── tutorials/          # 教学文档：按版本切片的教程
         ├── README.md       # 教学路径索引
         ├── 01-minimal-loop.md
         ├── 02-first-tool.md
@@ -72,7 +72,7 @@ mini_agent/
 - [ ] **v0.9 shell 执行**：`run_shell` 工具 + 白名单权限
 - [ ] **v1.0 上下文管理 + 规划**：message 裁剪/摘要 + `MAX_ITERATIONS` 调大 + plan 引导
 
-> 每加一项，在此打勾并在"当前架构"更新对应模块说明。详细方案见 `doc/plans/teaching-repo-plan.md`。
+> 每加一项，在此打勾并在"当前架构"更新对应模块说明。详细方案见 `docs/plans/teaching-repo-plan.md`。
 
 ## 运行
 

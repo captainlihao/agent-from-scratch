@@ -1,7 +1,7 @@
 # 多阶段教学仓库方案
 
 > 状态：方案已确认，待落地
-> 决策记录：重置 main 到 v0.1 / 复用 doc/ 加 teaching 子目录 / v0.1 为无工具纯对话 loop / 先出方案不动代码
+> 决策记录：重置 main 到 v0.1 / 复用 docs/ 加 tutorials 子目录 / v0.1 为无工具纯对话 loop / 先出方案不动代码
 > 更新：教学文档模板加入"使用指导"章节，随版本演进
 
 ## 1. 目标
@@ -29,7 +29,7 @@
 
 ## 3. 目录结构
 
-复用现有 `doc/` 三级结构，在其下加 `teaching/` 子目录。代码仍在 `src/`，始终是最新版状态。
+复用现有 `docs/` 三级结构，在其下加 `tutorials/` 子目录。代码仍在 `src/`，始终是最新版状态。
 
 ```
 mini_agent/
@@ -40,12 +40,12 @@ mini_agent/
 ├── src/mini_agent/          # 代码（main 始终是最新版）
 ├── tests/
 ├── examples/
-└── doc/
-    ├── README.txt           # 更新：加 teaching/ 说明
+└── docs/
+    ├── README.txt           # 更新：加 tutorials/ 说明
     ├── governance/          # 不变
     ├── plans/               # 不变（本方案文档放此）
     ├── operation/           # 不变
-    └── teaching/            # 新增：教学文档
+    └── tutorials/          # 新增：教学文档
         ├── README.md        # 教学路径索引
         ├── 01-minimal-loop.md
         ├── 02-first-tool.md
@@ -63,15 +63,15 @@ mini_agent/
 
 | 目录 | 面向谁 | 内容性质 | 更新频率 |
 |---|---|---|---|
-| `doc/teaching/` | 学习者 | 概念讲解 + 代码差异解读 + 使用指导 | 每版加一篇 |
-| `doc/governance/` | 维护者 | 约束、规范、决策记录 | 偶尔 |
-| `doc/plans/` | 维护者 | 方案、任务拆解（本文件所在目录） | 偶尔 |
-| `doc/operation/` | 使用者 | 运行手册、使用指南 | 跟随代码变 |
+| `docs/tutorials/` | 学习者 | 概念讲解 + 代码差异解读 + 使用指导 | 每版加一篇 |
+| `docs/governance/` | 维护者 | 约束、规范、决策记录 | 偶尔 |
+| `docs/plans/` | 维护者 | 方案、任务拆解（本文件所在目录） | 偶尔 |
+| `docs/operation/` | 使用者 | 运行手册、使用指南 | 跟随代码变 |
 | `AGENTS.md` | 维护者 + AI | 项目总纲、路线图、约束备忘 | 每版同步 |
 
 ## 4. 教学文档模板
 
-每份 `doc/teaching/0X-xxx.md` 用统一结构，降低学习者认知负担。文件名：两位序号 + 连字符主题，与 `doc/plans/` 约定一致。
+每份 `docs/tutorials/0X-xxx.md` 用统一结构，降低学习者认知负担。文件名：两位序号 + 连字符主题，与 `docs/plans/` 约定一致。
 
 ```markdown
 # 第 X 课：{主题}
@@ -137,12 +137,12 @@ mini_agent/
 | v0.9 | `run_shell` 跑 `python tests/test_tools.py`；观察白名单权限；试 `"跑一下测试"` |
 | v1.0 | 长任务验证 `MAX_ITERATIONS` 调大后能跑完；观察上下文裁剪日志 |
 
-### 5.1 与 `doc/operation/manual.md` 的分工
+### 5.1 与 `docs/operation/manual.md` 的分工
 
-- `doc/operation/manual.md`：**最新版**完整使用手册，不按版本切片，每版完成时同步更新。涵盖所有当前可用工具、配置、权限交互、测试、FAQ。
+- `docs/operation/manual.md`：**最新版**完整使用手册，不按版本切片，每版完成时同步更新。涵盖所有当前可用工具、配置、权限交互、测试、FAQ。
 - 教学文档的"使用指导"：只讲**本版**怎么用，是"学习者手册"，跟着版本走。不重复 manual.md 的所有细节，但告诉学习者"想看完整用法去翻 manual.md"。
 
-## 6. `doc/teaching/README.md` 内容要点
+## 6. `docs/tutorials/README.md` 内容要点
 
 教学路径索引，给学习者一个入口：
 
@@ -165,7 +165,7 @@ git checkout v0.1
 读 01-minimal-loop.md，跑"使用指导"里的命令。
 
 ## 完整使用手册
-doc/operation/manual.md — 最新版的完整用法。
+docs/operation/manual.md — 最新版的完整用法。
 ```
 
 ## 7. CHANGELOG.md 格式
@@ -204,7 +204,7 @@ git rm -rf .
 # 3. 放入 v0.1 代码 + 文档（见第 9 节）
 #    只放：agent.py(非流式版) / __main__.py / config.py / __init__.py
 #    + pyproject.toml + README.md + AGENTS.md(精简版)
-#    + doc/teaching/01-minimal-loop.md + doc/teaching/README.md
+#    + docs/tutorials/01-minimal-loop.md + docs/tutorials/README.md
 #    + CHANGELOG.md + .gitignore
 
 git add -A
@@ -220,7 +220,7 @@ git branch -m main-new main
 
 ```bash
 # 1. 在 main 上开发到本版状态
-# 2. 更新 CHANGELOG.md、doc/teaching/0X-xxx.md、AGENTS.md 路线图打勾
+# 2. 更新 CHANGELOG.md、docs/tutorials/0X-xxx.md、AGENTS.md 路线图打勾
 # 3. 跑 tests
 $env:PYTHONPATH="src"; python tests/test_tools.py
 # 4. 提交 + 打 tag
@@ -236,7 +236,7 @@ git clone <repo>
 cd mini_agent
 git tag                    # 看所有版本
 git checkout v0.1          # 切到第一版
-# 读 doc/teaching/01-minimal-loop.md
+# 读 docs/tutorials/01-minimal-loop.md
 # 跑：$env:PYTHONPATH="src"; python -m mini_agent "你好"
 git checkout v0.2          # 看差异，读 02-first-tool.md
 # ...依次到 v1.0
@@ -322,14 +322,14 @@ def agent_loop(messages):
 - "当前架构"章节跟随最新版更新
 - "运行"章节不变
 - "关键约束"章节不变（这些约束跨版本有效）
-- 顶部加一行："本仓库为多阶段教学仓库，按 git tag v0.1→v1.0 顺序学习，见 `doc/teaching/`"
+- 顶部加一行："本仓库为多阶段教学仓库，按 git tag v0.1→v1.0 顺序学习，见 `docs/tutorials/`"
 
 ## 12. 验收标准
 
 方案落地后应满足：
 - [ ] `git tag` 列出 v0.1 到 v1.0 共 10 个 tag
 - [ ] `git checkout v0.X` 后代码可跑（`python -m mini_agent "你好"` 不报错）
-- [ ] `doc/teaching/` 下有 10 份文档 + 1 份 README 索引
+- [ ] `docs/tutorials/` 下有 10 份文档 + 1 份 README 索引
 - [ ] 每份教学文档有"使用指导"章节且命令可跑通
 - [ ] `CHANGELOG.md` 有 10 段，每段 Added/Changed/Why 齐全
 - [ ] `git diff v0.(X-1)..v0.X --stat` 每版差异在"一两个文件"量级

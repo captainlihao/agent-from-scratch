@@ -1,4 +1,4 @@
-# 教学路径（teaching）
+# 教学路径（tutorials）
 
 本目录是 `mini_agent` 教学仓库的核心：按版本号切片的教程文档。
 
@@ -45,5 +45,5 @@ git checkout v0.2          # 看差异，读 02-first-tool.md
 
 ## 完整使用手册
 
-[`doc/operation/manual.md`](../operation/manual.md) — 最新版的完整用法、配置、FAQ。
+[`docs/operation/manual.md`](../operation/manual.md) — 最新版的完整用法、配置、FAQ。
 教学文档的"使用指导"只讲**本版**怎么用，想看全量用法去翻 manual。
