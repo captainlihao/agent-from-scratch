@@ -1,6 +1,6 @@
 # mini_agent 操作手册
 
-> 本手册跟随最新版本更新。当前对应版本：**v0.1**（最简 agent loop，无工具）。
+> 本手册跟随最新版本更新。当前对应版本：**v0.2**（第一个工具：calculate）。
 
 ## 1. 环境准备
 
@@ -58,12 +58,24 @@ python -m mini_agent
 
 ---
 
-## 3. 当前能力（v0.1）
+## 3. 当前能力（v0.2）
 
-v0.1 是最简版本，**无任何工具**：
-- LLM 只能纯对话回复
-- 不能读写文件、不能执行命令、不能计算
-- 每次调用 LLM 后，若回复不含 `tool_calls` 即结束（v0.1 永远走这个分支）
+v0.2 引入了第一个工具 `calculate`：
+
+### 3.1 工具
+
+| 工具 | 参数 | 说明 |
+|---|---|---|
+| `calculate` | `expression: str` | 计算数学表达式（仅数字与 `+-*/()` ） |
+
+### 3.2 工具调用流程
+1. LLM 返回 `tool_calls`（指定工具名 + 参数）
+2. `ToolExecutor` 执行对应 handler，异常捕获返回错误信息
+3. 结果作为 `role=tool` 消息回灌，进入下一轮
+4. LLM 拿着工具结果生成最终回复（无 tool_calls 则结束）
+
+### 3.3 无权限交互
+v0.2 所有工具直接执行，不问用户（v0.4 才加权限闸门）。
 
 ---
 
@@ -72,15 +84,15 @@ v0.1 是最简版本，**无任何工具**：
 ### 4.1 运行 smoke test
 ```bash
 # 需 PYTHONPATH=src（未 pip install 时）
-$env:PYTHONPATH="src"; python tests/test_loop.py
+$env:PYTHONPATH="src"; python tests/test_tools.py
 ```
-覆盖：import 链路、call_llm 签名、agent_loop 签名。
+覆盖：registry 注册、calculate 正常/非法输入、重复注册、未知工具。
 
 ### 4.2 快速验证 import 链路
 ```bash
 $env:PYTHONPATH="src"
-python -c "from mini_agent.agent import agent_loop, call_llm; print('import ok')"
-# 期望输出: import ok
+python -c "from mini_agent.tools import registry; print([t.name for t in registry.list_tools()])"
+# 期望输出: ['calculate']
 ```
 
 ---
@@ -92,7 +104,7 @@ python -c "from mini_agent.agent import agent_loop, call_llm; print('import ok')
 > 注意：必须用 `http.client`（代码已如此），不能用 requests/urllib——网关对 `Accept-Encoding: gzip` 响应异常。`call_llm` 已显式设 `Accept-Encoding: identity` 绕过。
 
 ### Q2：任务没完成就停了
-v0.1 无工具，LLM 回复一次就结束。如果 LLM 回复里说"我去读取文件"但实际没读——这是 LLM 在瞎编，v0.1 确实做不到。v0.2+ 加工具后才有真实能力。
+可能触发 `MAX_ITERATIONS=10` 上限，agent 返回 `"达到最大迭代次数"`。改 `config.py` 调高即可，但注意长对话会累积上下文。
 
 ### Q3：中文乱码（Windows 控制台）
 `__main__.py` 已对 win32 设 `sys.stdout.reconfigure(encoding="utf-8")`。若仍乱码，PowerShell 执行 `chcp 65001` 切到 UTF-8。
