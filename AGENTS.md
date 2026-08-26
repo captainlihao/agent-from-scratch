@@ -11,7 +11,7 @@
 - **渐进式生长**：每次只加刚好够用的能力，避免过度设计。新功能先在 `AGENTS.md` 记下意图，再落地代码。
 - **核心 loop 保持清晰**：agent loop 不加 try/except 兜底，工具失败直接抛异常——保持主路径可读。复杂容错按需在工具层或执行器层引入。
 
-## 当前架构（v0.2）
+## 当前架构（v0.3）
 
 标准 Python `src/` 包布局：
 
@@ -28,7 +28,8 @@ mini_agent/
 │   └── tools/
 │       ├── __init__.py     # registry + executor 实例
 │       ├── base.py         # Tool / ToolRegistry / ToolExecutor
-│       └── calc.py         # calculate 工具
+│       ├── calc.py         # calculate 工具
+│       └── file.py         # read_file / write_file 工具
 ├── tests/
 │   ├── test_loop.py        # import 链路 smoke test
 │   └── test_tools.py       # 工具 smoke test
@@ -42,12 +43,13 @@ mini_agent/
     └── teaching/           # 教学文档：按版本切片的教程
         ├── README.md       # 教学路径索引
         ├── 01-minimal-loop.md
-        └── 02-first-tool.md
+        ├── 02-first-tool.md
+        └── 03-file-tools.md
 ```
 
 - LLM 调用：`http.client` 非流式，OpenAI function calling 协议（`tools` 参数）。
-- 工具：`calculate`。通过 `ToolRegistry` 注册，`ToolExecutor` 执行。
-- **v0.2 无权限闸门**：工具直接执行，不问用户（v0.4 才加）。
+- 工具：`calculate`、`read_file`、`write_file`。通过 `ToolRegistry` 注册，`ToolExecutor` 执行。
+- **v0.3 无权限闸门**：工具直接执行，不问用户（v0.4 才加）。
 - 迭代上限 `MAX_ITERATIONS = 10`（硬编码，长任务可能静默截断，后续需调）。
 - 包未 pip install 时需 `PYTHONPATH=src`；`pip install -e .` 后可免。
 
@@ -57,7 +59,7 @@ mini_agent/
 
 - [x] **v0.1 最简 agent loop**：`call_llm`（非流式）+ `agent_loop`（无工具纯对话）+ `__main__` + `config.py`
 - [x] **v0.2 第一个工具**：`Tool`/`ToolRegistry`/`ToolExecutor` + `calculate` + function calling 协议
-- [ ] **v0.3 文件读写工具**：`read_file`/`write_file`
+- [x] **v0.3 文件读写工具**：`read_file`/`write_file`
 - [ ] **v0.4 权限闸门**：`permission.py`（allow/deny/ask 三态）+ `PermissionGate`
 - [ ] **v0.5 流式输出**：`call_llm` 改流式 + chunk 拼接 + 打字机效果
 - [ ] **v0.6 并发 tool_calls**：`ThreadPoolExecutor` 并发执行同一轮多个 tool_calls

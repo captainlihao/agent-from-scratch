@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.3] - 文件读写工具
+
+### Added
+- `src/mini_agent/tools/file.py`：`read_file`/`write_file` 工具
+- `examples/input.txt`、`examples/input2.txt`：示例文件
+- `doc/teaching/03-file-tools.md`：第三课教学文档
+
+### Changed
+- `src/mini_agent/tools/__init__.py`：注册 read_file/write_file
+- `tests/test_tools.py`：加 read_file/write_file 测试
+
+### Why
+- agent 不改文件没法做编程任务，文件读写是基础能力。
+- 先让"能写文件"跑通，权限是独立概念，v0.4 专门讲。
+- 加工具只需写 handler + 注册，不动 agent.py——验证三件套分离关注点的好处。
+
 ## [v0.2] - 第一个工具
 
 ### Added

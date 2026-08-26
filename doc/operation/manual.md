@@ -1,6 +1,6 @@
 # mini_agent 操作手册
 
-> 本手册跟随最新版本更新。当前对应版本：**v0.2**（第一个工具：calculate）。
+> 本手册跟随最新版本更新。当前对应版本：**v0.3**（文件读写工具：read_file/write_file）。
 
 ## 1. 环境准备
 
@@ -58,15 +58,17 @@ python -m mini_agent
 
 ---
 
-## 3. 当前能力（v0.2）
+## 3. 当前能力（v0.3）
 
-v0.2 引入了第一个工具 `calculate`：
+v0.3 引入了文件读写工具：
 
 ### 3.1 工具
 
 | 工具 | 参数 | 说明 |
 |---|---|---|
 | `calculate` | `expression: str` | 计算数学表达式（仅数字与 `+-*/()` ） |
+| `read_file` | `path: str` | 读取文本文件内容 |
+| `write_file` | `path: str, content: str` | 将内容写入文本文件 |
 
 ### 3.2 工具调用流程
 1. LLM 返回 `tool_calls`（指定工具名 + 参数）
@@ -75,7 +77,14 @@ v0.2 引入了第一个工具 `calculate`：
 4. LLM 拿着工具结果生成最终回复（无 tool_calls 则结束）
 
 ### 3.3 无权限交互
-v0.2 所有工具直接执行，不问用户（v0.4 才加权限闸门）。
+v0.3 所有工具直接执行，不问用户（v0.4 才加权限闸门）。
+
+### 3.4 相对路径约定
+工具的相对路径（如 `examples/input.txt`）从**项目根目录** `mini_agent/` 起算：
+```bash
+# 在 mini_agent/ 目录下运行
+python -m mini_agent "读取 examples/input.txt"
+```
 
 ---
 
