@@ -190,3 +190,85 @@ $env:PYTHONPATH="src"; python -m mini_agent "同时读取 examples/input.txt 和
 ## 本版完整代码
 
 - [`src/mini_agent/agent.py`](../../src/mini_agent/agent.py) — agent_loop 里 tool_calls 并发执行
+
+---
+
+## v0.6.1 修订：多轮上下文状态契约
+
+> 版本 v0.6.1 | v0.6 的 patch，不改功能，只修多轮上下文的隐性 bug。
+
+### 发现的问题
+
+`agent_loop` 通过 **list 可变副作用** 向传入的 `messages` 追加 assistant / tool 消息，但这个契约此前是**隐式的**——只在源码里靠 `messages.append(...)` 体现，docstring 只写了"messages 由调用方维护并跨轮复用，本函数只往里 append"，含糊不清。
+
+由此引发两个实际问题：
+
+1. **`__main__.py` 两条路径分叉**：argv 分支和交互循环分支各自维护 messages 的方式不一致，读代码时无法信任"agent_loop 调用后 messages 到底处于什么状态"。虽然 argv 分支实际靠副作用拿到了完整状态，但写法隐晦，后续维护易踩坑。
+
+2. **半截状态未文档化**：当 `agent_loop` 因达到 `MAX_ITERATIONS` 提前返回 `"达到最大迭代次数"` 时，messages 会停在 **"有 tool_calls 但无对应 tool 结果"** 的半截状态。下一轮调用前若不处理，OpenAI 协议会因 `tool_calls` 后缺 `role=tool` 消息而报错。此前这个边界完全没文档。
+
+### 修复点（方案 A：不改签名）
+
+选择**不改 `agent_loop` 签名**（保持 `agent_loop(messages)` 单参数），原因：
+- `tests/test_loop.py` 的 `test_agent_loop_signature` 断言签名必须只有 `messages`，改签名会破坏现有测试。
+- 问题本质不在签名，而在契约不清晰和调用方路径分叉。
+
+具体改动：
+
+**`src/mini_agent/agent.py` — `agent_loop` docstring 显式契约化**
+
+```python
+def agent_loop(messages):
+    """循环：调 LLM -> 有 tool_calls 就执行并回灌 -> 无则结束。
+
+    【messages 契约】本函数以副作用方式向传入的 messages 列表追加内容，
+    调用方应跨轮复用同一个 list 对象，不要重新构造。每轮会 append：
+      1. assistant 消息（含 content 和/或 tool_calls）
+      2. 若有 tool_calls：对应每条的 role=tool 结果消息
+    返回值是最终 assistant 回复的 content 字符串（仅用于打印），
+    真正的上下文状态已写入 messages，调用方无需再手动 append assistant 回复。
+
+    注意：若因达到 MAX_ITERATIONS 提前返回，messages 可能停在
+    "有 tool_calls 但无对应 tool 结果"的半截状态，下一轮调用前
+    调用方有责任处理该状态（当前实现未做清理，长任务可能触发协议错误）。
+    """
+```
+
+**`src/mini_agent/__main__.py` — 统一 argv 与交互循环路径**
+
+改前：argv 分支单独写一套逻辑，交互循环另一套，两路径行为不一致隐患。
+
+改后：argv 分支与交互循环走同一套"append user → agent_loop → 复用 messages"路径，并在文件顶部注释点明 messages 状态契约：
+
+```python
+# messages 列表跨轮复用：agent_loop 以副作用方式向其追加
+# assistant / tool 消息，调用方无需手动 append assistant 回复。
+# 详见 agent.agent_loop 的 docstring 契约。
+messages = [{"role": "system", "content": "你是一个助手，通过调用工具完成任务。"}]
+
+# 命令行首条任务（可选）：与交互循环走同一套路径，
+# 保证 argv 分支后 messages 状态完整，后续追问上下文不丢。
+if len(sys.argv) > 1:
+    messages.append({"role": "user", "content": sys.argv[1]})
+    reply = agent_loop(messages)
+    print(reply)
+```
+
+### 为什么是 patch 不是 minor
+
+- 零功能新增，零行为变更（argv 分支本就靠副作用拿到完整状态）。
+- 只是把隐式契约写成显式，消除维护隐患。
+- 测试全部通过，无需新增 test case（契约文档化不改变可观测行为）。
+
+### 遗留问题（未在本版修）
+
+1. **MAX_ITERATIONS 半截状态清理**：docstring 已点明风险，但未实现自动清理。长任务触发上限后，下一轮仍可能协议报错。留待 v1.0 上下文管理一并处理。
+2. **`agent_loop` 返回值语义**：当前返回 content 字符串仅供打印，真正的状态在 messages 副作用里。这种"返回值 + 副作用"双通道设计不够干净，但改它要动签名，留待后续。
+
+### 本版改动文件
+
+```
+src/mini_agent/
+├── agent.py        # 改：agent_loop docstring 契约化
+└── __main__.py     # 改：统一两路径，加 messages 契约注释
+```
