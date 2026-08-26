@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.5] - 流式输出
+
+### Changed
+- `src/mini_agent/agent.py`：`call_llm` 改流式（`stream=True` + SSE 解析 + chunk 拼接 + 打字机效果）；`agent_loop` 里 print 标记移到 `call_llm` 之前
+
+### Why
+- 非流式下 LLM 全部想完才返回，长回复时终端有明显等待。
+- 流式边收边显示，打字机效果让用户体感更快。
+- `http.client` + `Accept-Encoding: identity` 保证收到未压缩的原始文本流，逐行解析可靠。
+- tool_calls 的 arguments 跨 chunk 拼接（`+=`），用 index 聚合——流式下结构化数据的处理方式。
+
 ## [v0.4] - 权限闸门
 
 ### Added

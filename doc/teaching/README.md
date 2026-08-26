@@ -12,7 +12,7 @@
 | v0.2 | 第一个工具 | [02-first-tool.md](02-first-tool.md) |
 | v0.3 | 文件读写工具 | [03-file-tools.md](03-file-tools.md) |
 | v0.4 | 权限闸门 | [04-permission-gate.md](04-permission-gate.md) |
-| v0.5 | 流式输出 | 05-streaming.md（待落地） |
+| v0.5 | 流式输出 | [05-streaming.md](05-streaming.md) |
 | v0.6 | 并发 tool_calls | 06-concurrent-tool-calls.md（待落地） |
 | v0.7 | 系统提示词工程化 | 07-system-prompt.md（待落地） |
 | v0.8 | 文件操作补全 | 08-file-operations.md（待落地） |

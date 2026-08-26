@@ -11,7 +11,7 @@
 - **渐进式生长**：每次只加刚好够用的能力，避免过度设计。新功能先在 `AGENTS.md` 记下意图，再落地代码。
 - **核心 loop 保持清晰**：agent loop 不加 try/except 兜底，工具失败直接抛异常——保持主路径可读。复杂容错按需在工具层或执行器层引入。
 
-## 当前架构（v0.4）
+## 当前架构（v0.5）
 
 标准 Python `src/` 包布局：
 
@@ -46,10 +46,11 @@ mini_agent/
         ├── 01-minimal-loop.md
         ├── 02-first-tool.md
         ├── 03-file-tools.md
-        └── 04-permission-gate.md
+        ├── 04-permission-gate.md
+        └── 05-streaming.md
 ```
 
-- LLM 调用：`http.client` 非流式，OpenAI function calling 协议（`tools` 参数）。
+- LLM 调用：`http.client` 流式，OpenAI function calling 协议（`tools` 参数）。
 - 工具：`calculate`、`read_file`、`write_file`。通过 `ToolRegistry` 注册，`ToolExecutor` 执行。
 - **v0.4 权限闸门**：`write_file` 走 ASK（每次问用户），`read_file`/`calculate` 走 ALLOW。`PermissionGate` 在 Executor 里拦截。
 - 迭代上限 `MAX_ITERATIONS = 10`（硬编码，长任务可能静默截断，后续需调）。
@@ -63,7 +64,7 @@ mini_agent/
 - [x] **v0.2 第一个工具**：`Tool`/`ToolRegistry`/`ToolExecutor` + `calculate` + function calling 协议
 - [x] **v0.3 文件读写工具**：`read_file`/`write_file`
 - [x] **v0.4 权限闸门**：`permission.py`（allow/deny/ask 三态）+ `PermissionGate`
-- [ ] **v0.5 流式输出**：`call_llm` 改流式 + chunk 拼接 + 打字机效果
+- [x] **v0.5 流式输出**：`call_llm` 改流式 + chunk 拼接 + 打字机效果
 - [ ] **v0.6 并发 tool_calls**：`ThreadPoolExecutor` 并发执行同一轮多个 tool_calls
 - [ ] **v0.7 系统提示词工程化**：system prompt 从一行扩到完整规范
 - [ ] **v0.8 文件操作补全**：`list_dir`、`edit_file`、`grep`
