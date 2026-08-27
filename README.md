@@ -63,8 +63,8 @@ python -m mini_agent             # 或交互式输入
 | **v0.4** | 权限闸门 | `permission.py`（allow/deny/ask 三态） | [04-permission-gate.md](./docs/tutorials/04-permission-gate.md) |
 | **v0.5** | 流式输出 | `call_llm` 改流式 + 打字机效果 | [05-streaming.md](./docs/tutorials/05-streaming.md) |
 | **v0.6** | 并发 tool_calls | `ThreadPoolExecutor` 并发执行 | [06-concurrent-tool-calls.md](./docs/tutorials/06-concurrent-tool-calls.md) |
-| v0.7 | 系统提示词工程化 | system prompt 从一行扩到完整规范 | _待落地_ |
-| v0.8 | 文件操作补全 | `list_dir` / `edit_file` / `grep` | _待落地_ |
+| **v0.7** | 系统提示词工程化 | system prompt 从一行扩到完整规范 | [07-system-prompt.md](./docs/tutorials/07-system-prompt.md) |
+| **v0.8** | 文件操作补全 | `list_dir` / `edit_file` / `grep` | [08-file-operations.md](./docs/tutorials/08-file-operations.md) |
 | v0.9 | 权限系统升级 | 二维权限 (tool_name, pattern) + fnmatch 通配符匹配 | _待落地_ |
 | v0.10 | shell 执行 | `run_shell` 工具 + BashArity 命令泛化 | _待落地_ |
 | v0.11 | 上下文管理 | message 裁剪/摘要 + `MAX_ITERATIONS` 调大 | _待落地_ |

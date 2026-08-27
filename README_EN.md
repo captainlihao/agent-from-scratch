@@ -63,8 +63,8 @@ Checkout versions in order `v0.1 → v0.X`, each with a companion tutorial. **Th
 | **v0.4** | Permission gate | `permission.py` (allow/deny/ask) | [04-permission-gate.md](./docs/tutorials/04-permission-gate.md) |
 | **v0.5** | Streaming output | streaming `call_llm` + typewriter effect | [05-streaming.md](./docs/tutorials/05-streaming.md) |
 | **v0.6** | Concurrent tool_calls | `ThreadPoolExecutor` concurrency | [06-concurrent-tool-calls.md](./docs/tutorials/06-concurrent-tool-calls.md) |
-| v0.7 | System prompt engineering | expand system prompt to full spec | _coming soon_ |
-| v0.8 | File operations complete | `list_dir` / `edit_file` / `grep` | _coming soon_ |
+| **v0.7** | System prompt engineering | expand system prompt to full spec | [07-system-prompt.md](./docs/tutorials/07-system-prompt.md) |
+| **v0.8** | File operations complete | `list_dir` / `edit_file` / `grep` | [08-file-operations.md](./docs/tutorials/08-file-operations.md) |
 | v0.9 | Permission system upgrade | 2D permission (tool_name, pattern) + fnmatch | _coming soon_ |
 | v0.10 | Shell execution | `run_shell` tool + BashArity command generalization | _coming soon_ |
 | v0.11 | Context management | message trimming/summary + `MAX_ITERATIONS` increase | _coming soon_ |
