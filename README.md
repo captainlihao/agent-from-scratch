@@ -1,6 +1,6 @@
 <div align="center">
 
-# mini_agent
+# agent-from-scratch
 
 ### 逐步生长的编程 Agent · 从零开始构建一个能干活的 AI Agent
 
@@ -33,8 +33,8 @@ A step-by-step tutorial for building a coding agent from scratch — in 10 incre
 
 ```bash
 # 1. 克隆
-git clone https://github.com/liiiiiiiiil/mini_agent.git
-cd mini_agent
+git clone https://github.com/liiiiiiiiil/agent-from-scratch.git
+cd agent-from-scratch
 
 # 2. 配置 LLM 网关
 cp src/mini_agent/config_example.py src/mini_agent/config_local.py

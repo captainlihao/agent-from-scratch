@@ -1,6 +1,6 @@
 <div align="center">
 
-# mini_agent
+# agent-from-scratch
 
 ### A coding agent that grows step by step · Build a working AI agent from scratch in 10 versions
 
@@ -33,8 +33,8 @@
 
 ```bash
 # 1. Clone
-git clone https://github.com/<your-user>/mini_agent.git
-cd mini_agent
+git clone https://github.com/liiiiiiiiil/agent-from-scratch.git
+cd agent-from-scratch
 
 # 2. Configure the LLM gateway
 cp src/mini_agent/config_example.py src/mini_agent/config_local.py
