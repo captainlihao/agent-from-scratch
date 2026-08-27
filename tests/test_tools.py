@@ -17,7 +17,7 @@ from mini_agent.permission import PermissionGate, PermissionPolicy, ALLOW, DENY,
 
 def test_registry():
     names = [t.name for t in registry.list_tools()]
-    expected = ["calculate", "read_file", "write_file", "edit_file", "list_dir", "grep"]
+    expected = ["calculate", "read_file", "write_file", "edit_file", "list_dir", "grep", "run_shell"]
     assert names == expected, names
     print(f"PASS: registry 包含 {len(expected)} 个工具")
 
@@ -224,6 +224,39 @@ def test_executor_unknown():
     print("PASS: executor 对未知工具抛 ValueError")
 
 
+def test_run_shell():
+    """run_shell 执行简单命令"""
+    result = executor.execute("run_shell", {"command": "echo hello_world"})
+    assert "hello_world" in result, result
+    print("PASS: run_shell 执行 echo 成功")
+
+
+def test_run_shell_exit_code():
+    """run_shell 返回非零退出码时带 [exit=N] 前缀"""
+    # Windows 和 Linux 的 false 命令不同
+    if sys.platform == "win32":
+        cmd = "python -c \"exit(1)\""
+    else:
+        cmd = "false"
+    result = executor.execute("run_shell", {"command": cmd})
+    assert "[exit=1]" in result, result
+    print("PASS: run_shell 非零退出码带前缀")
+
+
+def test_run_shell_permission():
+    """二维权限：git * allow，rm * deny"""
+    policy = PermissionPolicy({"run_shell": {"git *": "allow", "rm *": "deny", "*": "ask"}})
+    gate = PermissionGate(policy)
+    exec_test = ToolExecutor(registry, gate=gate)
+    # git 命令放行
+    result = exec_test.execute("run_shell", {"command": "git --version"})
+    assert "git version" in result.lower() or "git" in result.lower(), result
+    # rm 命令拒绝
+    result = exec_test.execute("run_shell", {"command": "rm -rf /tmp/nonexist"})
+    assert "权限拒绝" in result, result
+    print("PASS: run_shell 二维权限 git allow / rm deny 生效")
+
+
 if __name__ == "__main__":
     test_registry()
     test_calculate()
@@ -244,4 +277,7 @@ if __name__ == "__main__":
     test_permission_findlast_priority()
     test_registry_duplicate()
     test_executor_unknown()
+    test_run_shell()
+    test_run_shell_exit_code()
+    test_run_shell_permission()
     print("\n全部 smoke test 通过")

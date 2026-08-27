@@ -11,7 +11,7 @@
 - **渐进式生长**：每次只加刚好够用的能力，避免过度设计。新功能先在 `AGENTS.md` 记下意图，再落地代码。
 - **核心 loop 保持清晰**：agent loop 不加 try/except 兜底，工具失败直接抛异常——保持主路径可读。复杂容错按需在工具层或执行器层引入。
 
-## 当前架构（v0.9）
+## 当前架构（v0.10）
 
 标准 Python `src/` 包布局：
 
@@ -31,7 +31,8 @@ mini_agent/
 │       ├── __init__.py     # registry + executor 实例
 │       ├── base.py         # Tool / ToolRegistry / ToolExecutor
 │       ├── calc.py         # calculate 工具
-│       └── file.py         # read_file / write_file / edit_file / list_dir / grep 工具
+│       ├── file.py         # read_file / write_file / edit_file / list_dir / grep 工具
+│       └── shell.py        # run_shell 工具（subprocess + 超时 + 输出截断）
 ├── tests/
 │   ├── test_loop.py        # import 链路 smoke test
 │   ├── test_prompt.py      # system prompt smoke test
@@ -52,15 +53,17 @@ mini_agent/
         ├── 05-streaming.md
         ├── 06-concurrent-tool-calls.md
         ├── 07-system-prompt.md
-        └── 08-file-operations.md
+        ├── 08-file-operations.md
+        └── 09-permission-upgrade.md
 ```
 
 - LLM 调用：`http.client` 流式，OpenAI function calling 协议（`tools` 参数）。
-- 工具：`calculate`、`read_file`（支持 offset/limit）、`write_file`、`edit_file`（精确替换）、`list_dir`、`grep`。通过 `ToolRegistry` 注册，`ToolExecutor` 执行。
+- 工具：`calculate`、`read_file`（支持 offset/limit）、`write_file`、`edit_file`（精确替换）、`list_dir`、`grep`、`run_shell`（shell 执行，超时 30s，输出截断 2000 字符）。通过 `ToolRegistry` 注册，`ToolExecutor` 执行。
 - **v0.4 权限闸门**：`write_file`/`edit_file` 走 ASK（每次问用户），`read_file`/`calculate`/`list_dir`/`grep` 走 ALLOW。`PermissionGate` 在 Executor 里拦截。
 - **v0.7 系统提示词工程化**：`prompt.py` 的 `build_system_prompt()` 分层组装 system prompt（header 身份 + core_rules 行为规范 + environment 环境信息），`__main__.py` 启动时调一次构造 `messages[0]`。为多 agent 预留 `agent_name` 参数。
 - **v0.8 文件操作补全**：`read_file` 加 `offset`/`limit` 分段读取 + 行号前缀；新增 `edit_file`（精确字符串替换，多匹配安全检查）、`list_dir`（目录列举，200 条上限）、`grep`（正则搜索，100 条上限，纯标准库 `re`+`os.walk`+`fnmatch`）。
-- **v0.9 权限系统升级**：`permission.py` 从一维 `tool_name -> action` 升级为二维 `(tool_name, pattern) -> action`。规则内部存扁平 `list[dict]`（Rule 三元组），`_from_config()` 兼容简单 dict 格式和复杂 dict 格式。`check()` 用 `fnmatch` 做 wildcard 匹配，`findLast` 语义（后出现优先级更高），未匹配默认 `ask`。`approve()` 存 `(tool_name, pattern)` 实现"同类免问"。`_extract_pattern()` 从 args 提取 pattern（文件工具提取 path，run_shell 提取 command，其他返回 `*`）。
+- **v0.9 权限系统升级**：`permission.py` 从一维 `tool_name -> action` 升级为二维 `(tool_name, pattern) -> action`。规则内部存扁平 `list[dict]`（Rule 三元组），`_from_config()` 兼容简单 dict 格式和复杂 dict 格式，复杂格式 `*` 排最前（优先级最低）。`check()` 用 `fnmatch` 做 wildcard 匹配，`findLast` 语义（后出现优先级更高），未匹配默认 `ask`。`approve()` 存 `(tool_name, pattern)` 实现"同类免问"。`_extract_pattern()` 从 args 提取 pattern（文件工具提取 path，run_shell 提取 command，其他返回 `*`）。
+- **v0.10 shell 执行**：新增 `tools/shell.py`（`run_shell` 工具，`subprocess.run` + `shell=True` + 超时 30s + 输出截断 2000 字符 + 退出码前缀）。`PERMISSION_RULES` 加 `run_shell` 二维权限（`git *`/`python *`/`pip *`/`ls *`/`cat *`/`echo *` → allow，`*` → ask）。`prompt.py` header 能力描述更新为"读写改文件、跑命令、做数学计算"。不做 BashArity 命令泛化——fnmatch 通配符已够用。
 - 迭代上限 `MAX_ITERATIONS = 10`（硬编码，长任务可能静默截断，后续需调）。
 - 包未 pip install 时需 `PYTHONPATH=src`；`pip install -e .` 后可免。
 
@@ -77,7 +80,7 @@ mini_agent/
 - [x] **v0.7 系统提示词工程化**：`prompt.py`（`build_system_prompt` 分层组装：header 身份 + core_rules 行为规范 + environment 环境信息）
 - [x] **v0.8 文件操作补全**：`list_dir`、`edit_file`、`grep`
 - [x] **v0.9 权限系统升级**：二维权限 (tool_name, pattern) + once/always 回复区分 + fnmatch 通配符匹配
-- [ ] **v0.10 shell 执行**：`run_shell` 工具 + BashArity 命令泛化 + 输出截断
+- [x] **v0.10 shell 执行**：`run_shell` 工具 + subprocess + 超时 + 输出截断 + 二维命令模式权限
 - [ ] **v0.11 上下文管理**：message 裁剪/摘要 + `MAX_ITERATIONS` 调大
 - [ ] **v0.12 plan 引导**：规划模式引导
 - [ ] **...**（持续迭代，按需追加）

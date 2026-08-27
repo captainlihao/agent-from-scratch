@@ -1,5 +1,25 @@
 # Changelog
 
+## [v0.10] - shell 执行
+
+### Added
+- `src/mini_agent/tools/shell.py`：`run_shell` 工具（`subprocess.run` + `shell=True` + 超时 30s + 输出截断 2000 字符 + 退出码前缀）
+- `docs/tutorials/10-shell-execution.md`：第十课教学文档
+
+### Changed
+- `src/mini_agent/tools/__init__.py`：注册 `run_shell_tool`（7 个工具）
+- `src/mini_agent/permission.py`：`PERMISSION_RULES` 加 `run_shell` 二维权限规则（`git *`/`python *`/`pip *`/`ls *`/`cat *`/`echo *` → allow，`*` → ask）；`_from_config` 对复杂格式排序，`*` 排最前（优先级最低），与 findLast 语义配合
+- `src/mini_agent/prompt.py`：`header()` 能力描述从"后续会扩展到跑命令"改为"当前能读写改文件、跑命令、做数学计算"
+- `tests/test_tools.py`：新增 3 个 run_shell 测试（执行 echo、非零退出码、二维权限 git allow/rm deny）
+
+### Why
+- v0.9 的二维权限已为 `run_shell` 铺路（`_extract_pattern` 返回 command 字符串），v0.10 落地工具本身。
+- 不做 BashArity 命令泛化：fnmatch 的 `git *` 通配符已能按命令前缀匹配，教学简洁性优先。后续如需按"命令+参数"分离匹配再引入。
+- `shell=True` 让命令字符串直接执行，教学简洁；安全性由二维权限闸门兜底（安全命令 allow，其他 ask）。
+- 超时 30s 硬编码：跑测试够用，长任务后续 v0.11 上下文管理再调。
+- 输出截断 2000 字符：防长输出爆上下文，与 `read_file` 的 limit 设计一致。
+- `_from_config` 排序修复：findLast 从后往前找，`*` 会匹配一切，必须排最前（优先级最低），否则 `*` 永远先匹配返回 ask，具体模式被遮蔽。
+
 ## [v0.9] - 权限系统升级
 
 ### Changed
@@ -17,7 +37,7 @@
 - `findLast` 语义让运行时 `approved` 规则（追加在末尾）自然覆盖前面的 `ask` 规则，无需显式删除旧规则。
 - 未匹配默认 `ask` 而非 `allow`——安全优先，新工具默认需要用户确认。
 - 借鉴 OpenCode `PermissionNext` 的 `evaluate` / `fromConfig` / `findLast` 设计，去掉事件总线、pending 队列、持久化——CLI 同步交互不需要。
-- `_extract_pattern()` 对 `run_shell` 返回完整命令字符串作为占位，v0.10 接入 BashArity 后改为泛化模式（如 `git checkout *`），只需改这一个方法。
+- `_extract_pattern()` 对 `run_shell` 返回完整命令字符串作为占位，v0.10 直接用 fnmatch 通配符（如 `git *`）按命令前缀匹配，不做 BashArity 命令泛化——fnmatch 已够用。
 
 ## [v0.8] - 文件操作补全
 

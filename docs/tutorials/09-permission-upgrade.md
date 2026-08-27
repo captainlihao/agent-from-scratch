@@ -90,7 +90,7 @@ def approve(self, tool_name: str, pattern: str = "*"):
 @staticmethod
 def _extract_pattern(tool_name: str, args: dict) -> str:
     if tool_name == "run_shell":
-        return args.get("command", "*")  # v0.10 接入 BashArity 后改为泛化模式
+        return args.get("command", "*")  # v0.10 直接用完整命令做 pattern
     if tool_name in ("read_file", "write_file", "edit_file"):
         return args.get("path", "*")
     return "*"
@@ -114,7 +114,7 @@ OpenCode 的 `evaluate()` 用 `findLast`——后出现的规则优先级更高�
 
 ### 为什么 _extract_pattern 对 run_shell 只返回完整命令？
 
-v0.9 只升级权限框架，不实现 BashArity 命令泛化。`run_shell` 工具在 v0.10 才落地。v0.9 的 `_extract_pattern()` 对 `run_shell` 返回完整命令字符串作为占位，v0.10 接入 BashArity 后改为泛化模式（如 `git checkout *`），只需改这一个方法。
+v0.9 只升级权限框架，不实现 `run_shell` 工具。`_extract_pattern()` 对 `run_shell` 返回完整命令字符串，v0.10 直接用 fnmatch 通配符（如 `git *`）按命令前缀匹配，不做 BashArity 命令泛化——fnmatch 已够用。
 
 ### 为什么现有工具行为不变？（二维退化为一维）
 

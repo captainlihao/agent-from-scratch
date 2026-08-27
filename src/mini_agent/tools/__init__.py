@@ -7,6 +7,7 @@ from mini_agent.tools.file import (
     list_dir_tool,
     grep_tool,
 )
+from mini_agent.tools.shell import run_shell_tool
 from mini_agent.permission import PermissionGate
 
 registry = ToolRegistry()
@@ -16,5 +17,6 @@ registry.register(write_file_tool)
 registry.register(edit_file_tool)
 registry.register(list_dir_tool)
 registry.register(grep_tool)
+registry.register(run_shell_tool)
 
 executor = ToolExecutor(registry)

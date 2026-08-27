@@ -26,7 +26,7 @@
 | v0.7 | 系统提示词工程化 | system prompt 从一行扩到完整规范 | prompt 即配置 |
 | v0.8 | 文件操作补全 | `list_dir`/`edit_file`（精准替换）/`grep` | 精准编辑而非整文件重写 |
 | v0.9 | 权限系统升级 | 二维权限 (tool_name, pattern) + once/always 回复区分 + fnmatch 通配符匹配 | 从一维到二维；命令模式粒度控制 |
-| v0.10 | shell 执行 | `run_shell` 工具 + BashArity 命令泛化 + 输出截断 | 跑测试/跑脚本；shell 权限从严 |
+| v0.10 | shell 执行 | `run_shell` 工具 + subprocess 超时 + 输出截断 + 二维命令模式权限 | 跑测试/跑脚本；shell 权限从严 |
 | v0.11 | 上下文管理 | message 裁剪/摘要 + `MAX_ITERATIONS` 调大 | 长任务不爆上下文 |
 | v0.12 | plan 引导 | 规划模式引导 | 规划与执行分离 |
 | ... | ... | ...（持续迭代，按需追加行） | ... |
@@ -144,7 +144,7 @@ mini_agent/
 | v0.7 | 对比 v0.6 vs v0.7 的 system prompt 让 LLM 行为差异；试长任务 |
 | v0.8 | `edit_file` 精准替换示例；`grep` 搜索示例；`list_dir` 列目录 |
 | v0.9 | 观察二维权限：按命令模式询问；`git *` 批准后同类免问；对比 v0.4 的一维权限差异 |
-| v0.10 | `run_shell` 跑 `python tests/test_tools.py`；观察 BashArity 泛化；试 "跑一下测试" |
+| v0.10 | `run_shell` 跑 `python tests/test_tools.py`；观察二维命令模式权限；试 "跑一下测试" |
 | v0.11 | 长任务验证 `MAX_ITERATIONS` 调大后能跑完；观察上下文裁剪日志 |
 | v0.12 | plan 模式引导示例；观察规划与执行的分离 |
 
@@ -326,7 +326,7 @@ def agent_loop(messages):
 - **v0.7**：`__main__.py` system prompt 扩为完整规范
 - **v0.8**：新增 `tools/file.py`；`tools/__init__.py` 注册；tests 加 read_file/write_file
 - **v0.9**：`permission.py` 升级（`check()` 二维匹配 + `fnmatch` + `approve()` 存 pattern）；`tools/base.py` 的 `PermissionGate.guard()` 从 args 提取 pattern；`PERMISSION_RULES` 支持 dict 格式
-- **v0.10**：新增 `tools/shell.py`（`run_shell` + `BashArity` + `subprocess` 超时 + 输出截断）；`tools/__init__.py` 注册；`prompt.py` 更新能力描述
+- **v0.10**：新增 `tools/shell.py`（`run_shell` + `subprocess` 超时 + 输出截断）；`tools/__init__.py` 注册；`permission.py` 加 `run_shell` 二维权限规则 + `_from_config` 排序修复（`*` 排最前）；`prompt.py` 更新能力描述
 - **v0.11**：`agent.py` 加 message 裁剪/摘要逻辑；`config.py` 调大 `MAX_ITERATIONS`
 - **v0.12**：`prompt.py` 加 plan 引导；`__main__.py` 加 plan 模式入口
 - **v0.13+**：按需追加

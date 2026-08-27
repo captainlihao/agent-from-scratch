@@ -66,7 +66,7 @@ Checkout versions in order `v0.1 → v0.X`, each with a companion tutorial. **Th
 | **v0.7** | System prompt engineering | expand system prompt to full spec | [07-system-prompt.md](./docs/tutorials/07-system-prompt.md) |
 | **v0.8** | File operations complete | `list_dir` / `edit_file` / `grep` | [08-file-operations.md](./docs/tutorials/08-file-operations.md) |
 | **v0.9** | Permission system upgrade | 2D permission (tool_name, pattern) + fnmatch | [09-permission-upgrade.md](./docs/tutorials/09-permission-upgrade.md) |
-| v0.10 | Shell execution | `run_shell` tool + BashArity command generalization | _coming soon_ |
+| **v0.10** | Shell execution | `run_shell` tool + subprocess + timeout + output truncation + 2D command pattern permission | [10-shell-execution.md](./docs/tutorials/10-shell-execution.md) |
 | v0.11 | Context management | message trimming/summary + `MAX_ITERATIONS` increase | _coming soon_ |
 | v0.12 | Plan guidance | planning mode guidance | _coming soon_ |
 | ... | ... | ... (incremental, add as needed) | ... |
@@ -94,7 +94,8 @@ mini_agent/
 │   └── tools/
 │       ├── base.py         # Tool / ToolRegistry / ToolExecutor
 │       ├── calc.py         # calculate tool
-│       └── file.py         # read_file / write_file tools
+│       ├── file.py         # read_file / write_file tools
+│       └── shell.py        # run_shell tool
 ├── tests/                  # smoke tests
 ├── docs/
 │   ├── tutorials/          # version-sliced tutorials (core)

@@ -1,6 +1,6 @@
 # mini_agent 操作手册
 
-> 本手册跟随最新版本更新。当前对应版本：**v0.9**（权限系统升级）。
+> 本手册跟随最新版本更新。当前对应版本：**v0.10**（shell 执行）。
 
 ## 1. 环境准备
 
@@ -60,9 +60,9 @@ python -m mini_agent
 
 ---
 
-## 3. 当前能力（v0.9）
+## 3. 当前能力（v0.10）
 
-v0.9 升级了权限系统，从一维 `tool_name -> action` 升级为二维 `(tool_name, pattern) -> action`，支持按文件路径模式控制权限。v0.8 的文件操作能力和 v0.7 的系统提示词工程化仍然生效。
+v0.10 新增 `run_shell` 工具，agent 能跑命令（跑测试、跑脚本）。v0.9 的二维权限系统为 `run_shell` 提供命令模式权限控制。v0.8 的文件操作能力和 v0.7 的系统提示词工程化仍然生效。
 
 ### 3.1 System Prompt
 
@@ -89,6 +89,7 @@ $env:PYTHONPATH="src"; python -c "from mini_agent.prompt import build_system_pro
 | `edit_file` | `path: str, old_string: str, new_string: str, replace_all?: bool` | **ASK** | 精确字符串替换，多匹配时需 replace_all 或更长上下文 |
 | `list_dir` | `path?: str` | allow | 列出目录内容，目录加 `/` 后缀，上限 200 条 |
 | `grep` | `pattern: str, path?: str, include?: str` | allow | 正则搜索文件内容，返回 `file:line: content`，上限 100 条 |
+| `run_shell` | `command: str` | **按命令模式** | 执行 shell 命令，超时 30s，输出截断 2000 字符 |
 
 ### 3.3 权限交互
 
@@ -102,12 +103,28 @@ v0.9 权限系统升级为二维匹配：`(tool_name, pattern) -> action`。`Per
 
 # 复杂格式（二维，按 pattern 细控）
 {"read_file": {"*": "allow", "*.env": "deny", "*.env.example": "allow"}}
+
+# run_shell 二维权限（按命令前缀控制）
+{"run_shell": {"git *": "allow", "python *": "allow", "*": "ask"}}
 ```
 
 **匹配规则**：
 - `findLast` 语义：从后往前找第一个匹配的规则，后出现的优先级更高
+- 复杂格式中 `*` 自动排最前（优先级最低），具体模式排后面（优先级更高）
 - 未匹配任何规则时默认 `ask`（安全优先）
 - `always` 回复时存 `(tool_name, pattern)` 到 approved，后续同类操作免问
+
+**run_shell 权限规则**（v0.10）：
+
+| 命令模式 | 动作 | 说明 |
+|---|---|---|
+| `git *` | allow | git 操作放行 |
+| `python *` | allow | python 脚本/测试放行 |
+| `pip *` | allow | pip 安装放行 |
+| `ls *` | allow | 只读命令放行 |
+| `cat *` | allow | 只读命令放行 |
+| `echo *` | allow | 只读命令放行 |
+| `*` | ask | 其他命令每次问用户 |
 
 `write_file`/`edit_file` 执行前会提示：
 ```
@@ -143,13 +160,13 @@ $env:PYTHONPATH="src"; python tests/test_prompt.py   # system prompt
 $env:PYTHONPATH="src"; python tests/test_loop.py      # import 链路
 $env:PYTHONPATH="src"; python tests/test_tools.py     # 工具 + 权限
 ```
-覆盖：system prompt 分层组装、import 链路、registry 注册、calculate 正常/非法输入、read_file 分段读取、读写文件、edit_file 精确替换/多匹配安全检查、list_dir、grep、权限闸门。
+覆盖：system prompt 分层组装、import 链路、registry 注册、calculate 正常/非法输入、read_file 分段读取、读写文件、edit_file 精确替换/多匹配安全检查、list_dir、grep、run_shell 执行/退出码/二维权限、权限闸门。
 
 ### 4.2 快速验证 import 链路
 ```bash
 $env:PYTHONPATH="src"
 python -c "from mini_agent.tools import registry; print([t.name for t in registry.list_tools()])"
-# 期望输出: ['calculate', 'read_file', 'write_file', 'edit_file', 'list_dir', 'grep']
+# 期望输出: ['calculate', 'read_file', 'write_file', 'edit_file', 'list_dir', 'grep', 'run_shell']
 ```
 
 ---

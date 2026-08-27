@@ -31,6 +31,16 @@ PERMISSION_RULES = {
     "grep": ALLOW,  # 只读，放行
     "write_file": ASK,  # 有副作用，每次问一下
     "edit_file": ASK,  # 有副作用，同 write_file
+    # v0.10：run_shell 二维权限——安全命令放行，其他每次问
+    "run_shell": {
+        "git *": ALLOW,  # git 操作放行
+        "python *": ALLOW,  # python 脚本/测试放行
+        "pip *": ALLOW,  # pip 安装放行
+        "ls *": ALLOW,  # 只读命令放行
+        "cat *": ALLOW,  # 只读命令放行
+        "echo *": ALLOW,  # 只读命令放行
+        "*": ASK,  # 其他命令每次问
+    },
 }
 
 
@@ -61,13 +71,20 @@ class PermissionPolicy:
 
         简单格式 "read_file": "allow"  →  {permission, pattern="*", action}
         复杂格式 "run_shell": {"git *": "allow"}  →  多条 Rule
+
+        对复杂格式，通配符 "*" 排在该工具规则块最前面（优先级最低），
+        具体模式排在后面（优先级更高），与 findLast 语义配合：
+        从后往前找，先碰具体模式，匹配不到才落到 "*" 兜底。
         """
         ruleset: list[dict] = []
         for key, value in config.items():
             if isinstance(value, str):
                 ruleset.append({"permission": key, "pattern": "*", "action": value})
             elif isinstance(value, dict):
-                for pattern, action in value.items():
+                # "*" 排最前（优先级最低），具体模式排后面（优先级更高）
+                # findLast 从后往前找，先碰具体模式，匹配不到才落到 "*" 兜底
+                items = sorted(value.items(), key=lambda kv: kv[0] != "*")
+                for pattern, action in items:
                     ruleset.append({"permission": key, "pattern": pattern, "action": action})
             else:
                 raise ValueError(f"不支持的权限规则格式: {key}={value!r}")
