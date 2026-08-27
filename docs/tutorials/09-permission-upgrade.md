@@ -116,6 +116,41 @@ OpenCode 的 `evaluate()` 用 `findLast`——后出现的规则优先级更高�
 
 v0.9 只升级权限框架，不实现 BashArity 命令泛化。`run_shell` 工具在 v0.10 才落地。v0.9 的 `_extract_pattern()` 对 `run_shell` 返回完整命令字符串作为占位，v0.10 接入 BashArity 后改为泛化模式（如 `git checkout *`），只需改这一个方法。
 
+### 为什么现有工具行为不变？（二维退化为一维）
+
+v0.9 升级后，`calculate`/`read_file`/`write_file`/`edit_file`/`list_dir`/`grep` 这 6 个工具的实际权限判定与 v0.8 完全一致——这是有意为之的向后兼容，不是失效。原因有二：
+
+**① 规则里 pattern 全是 `*`**
+
+`PERMISSION_RULES`（`permission.py` 的硬编码配置）仍是简单 dict 格式：
+
+```python
+PERMISSION_RULES = {
+    "read_file": ALLOW,   # _from_config 转成 {permission: "read_file", pattern: "*", action: "allow"}
+    "write_file": ASK,    # _from_config 转成 {permission: "write_file", pattern: "*", action: "ask"}
+    ...
+}
+```
+
+`_from_config()` 把简单格式 `"write_file": "ask"` 统一补成 `pattern="*"`（见 `permission.py:68`），没有按路径细分的规则条目。
+
+**② `fnmatch("*", X)` 恒为 True**
+
+`check()` 里对 pattern 做 `fnmatch` 匹配（`permission.py:84`）：
+
+- 对 `calculate`/`list_dir`/`grep`：`_extract_pattern` 返回 `"*"`（`permission.py:147`），规则 pattern 也是 `"*"`，`fnmatch("*", "*")` → True，等价于一维判定。
+- 对 `read_file`/`write_file`/`edit_file`：`_extract_pattern` 返回真实 path（如 `"a.txt"`，`permission.py:145`），但规则 pattern 仍是 `"*"`，`fnmatch("*", "a.txt")` → True，同样等价于一维。
+
+**设计意图**：二维权限的真正受益者是 v0.10 的 `run_shell`——只有 shell 命令才有"按模式细分授权"的实际需求（`git *` allow、`rm *` deny）。文件工具按路径细分权限在 CLI agent 场景里价值不大（用户不会预先配"只许写 src/"），所以 v0.9 没给它们配细粒度规则，保持 `*` 兜底。若需要，可显式配：
+
+```python
+PermissionPolicy({"read_file": {"*": "allow", "*.env": "deny", "*.key": "deny"}})
+```
+
+**唯一行为差异：approve 粒度收窄**
+
+v0.9 的 `approve()` 存 `(tool_name, pattern)` 而非只存 `tool_name`（`permission.py:88-95`）。所以选 `always` 写 `a.txt` 后，写 `b.txt` 仍会问——免问粒度从"按工具"收窄为"按 (工具, 路径模式)"。方向是更安全（收紧而非放宽），符合"安全优先"原则。若要恢复"所有 write_file 免问"，可在规则里显式配 `{"write_file": {"*": "allow"}}`，或在 `always` 时让 pattern 落到 `"*"`。
+
 ### 借鉴了 OpenCode 什么？去掉了什么？
 
 借鉴：
