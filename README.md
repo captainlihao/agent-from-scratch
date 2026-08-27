@@ -4,11 +4,11 @@
 
 ### 逐步生长的编程 Agent · 从零开始构建一个能干活的 AI Agent
 
-A step-by-step tutorial for building a coding agent from scratch — in 10 incremental versions.
+A step-by-step tutorial for building a coding agent from scratch — in incremental versions (v0.1 → ongoing).
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![Dependencies](https://img.shields.io/badge/dependencies-zero-green)](#)
-[![Versions](https://img.shields.io/badge/versions-10%20tags%20(v0.1→v1.0)-orange)](#学习路径)
+[![Versions](https://img.shields.io/badge/versions-v0.1%E2%86%92ongoing-orange)](#学习路径)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
 
 **[English](./README_EN.md)** · **中文**
@@ -17,14 +17,14 @@ A step-by-step tutorial for building a coding agent from scratch — in 10 incre
 
 ---
 
-> **这是什么**：一个按 git tag 切片的教学仓库。从最小可用的 agent loop（v0.1，无工具纯对话）起步，每个版本**只引入一个新概念**，一路长到能读写文件、跑命令、跑测试的编程 agent（v1.0）。
+> **这是什么**：一个按 git tag 切片的教学仓库。从最小可用的 agent loop（v0.1，无工具纯对话）起步，每个版本**只引入一个新概念**，一路长到能读写文件、跑命令、跑测试的编程 agent（持续迭代，不设上限）。
 >
 > **适合谁**：想搞清楚 LLM agent 到底怎么转起来的开发者。不调框架、不装 LangChain，只用 Python 标准库从零搭。
 
 ## 为什么用这个仓库学 Agent
 
 - **零第三方依赖** —— 全程只用 Python 标准库（`http.client` / `json` / `concurrent.futures`），不装 LangChain、不装 requests。代码自包含，每一行都能读懂。
-- **10 个版本切片，每版只加一个概念** —— `git diff v0.1..v0.2` 就是"加一个工具"的全部改动，diff 可读，学习负担低。
+- **版本切片，每版只加一个概念** —— `git diff v0.1..v0.2` 就是"加一个工具"的全部改动，diff 可读，学习负担低。版本持续递增，不设上限。
 - **真实可跑的 agent** —— 不是玩具 demo：支持 function calling、流式输出、权限闸门、并发工具调用，能真的读写文件、跑命令。
 - **配套中文教程** —— 每个版本一份教学文档（`docs/tutorials/`），讲清"为什么这么设计"，不只是贴代码。
 - **渐进式生长的设计哲学** —— 演示一个 agent 项目如何从 50 行长到生产可用，每一步的取舍都有据可查。
@@ -53,7 +53,7 @@ python -m mini_agent             # 或交互式输入
 
 ## 学习路径
 
-按 `v0.1 → v1.0` 顺序 checkout，每版配套一份教程。**这是本仓库的核心**。
+按 `v0.1 → v0.X` 顺序 checkout，每版配套一份教程。**这是本仓库的核心**。
 
 | 版本 | 主题 | 每版只加一个概念 | 教程 |
 |---|---|---|---|
@@ -65,8 +65,11 @@ python -m mini_agent             # 或交互式输入
 | **v0.6** | 并发 tool_calls | `ThreadPoolExecutor` 并发执行 | [06-concurrent-tool-calls.md](./docs/tutorials/06-concurrent-tool-calls.md) |
 | v0.7 | 系统提示词工程化 | system prompt 从一行扩到完整规范 | _待落地_ |
 | v0.8 | 文件操作补全 | `list_dir` / `edit_file` / `grep` | _待落地_ |
-| v0.9 | shell 执行 | `run_shell` 工具 + 白名单权限 | _待落地_ |
-| v1.0 | 上下文管理 + 规划 | message 裁剪/摘要 + plan 引导 | _待落地_ |
+| v0.9 | 权限系统升级 | 二维权限 (tool_name, pattern) + fnmatch 通配符匹配 | _待落地_ |
+| v0.10 | shell 执行 | `run_shell` 工具 + BashArity 命令泛化 | _待落地_ |
+| v0.11 | 上下文管理 | message 裁剪/摘要 + `MAX_ITERATIONS` 调大 | _待落地_ |
+| v0.12 | plan 引导 | 规划模式引导 | _待落地_ |
+| ... | ... | ...（持续迭代，按需追加） | ... |
 
 **如何切版本学习：**
 
@@ -76,7 +79,7 @@ git checkout v0.1          # 切到第一版
 # 读 docs/tutorials/01-minimal-loop.md
 # 跑教程里的命令
 git checkout v0.2          # 看差异：git diff v0.1..v0.2
-# 读 02-first-tool.md ... 依次到 v1.0
+# 读 02-first-tool.md ... 依次到最新版
 ```
 
 ## 项目结构

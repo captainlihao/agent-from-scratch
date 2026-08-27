@@ -2,13 +2,13 @@
 
 # agent-from-scratch
 
-### A coding agent that grows step by step · Build a working AI agent from scratch in 10 versions
+### A coding agent that grows step by step · Build a working AI agent from scratch in incremental versions
 
-逐步生长的编程 Agent —— 用 10 个版本从零构建一个能干活的 AI Agent。
+逐步生长的编程 Agent —— 持续迭代，从零构建一个能干活的 AI Agent。
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![Dependencies](https://img.shields.io/badge/dependencies-zero-green)](#)
-[![Versions](https://img.shields.io/badge/versions-10%20tags%20(v0.1→v1.0)-orange)](#learning-path)
+[![Versions](https://img.shields.io/badge/versions-v0.1%E2%86%92ongoing-orange)](#learning-path)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
 
 **English** · **[中文](./README.md)**
@@ -17,14 +17,14 @@
 
 ---
 
-> **What this is**: A tutorial repo sliced by git tags. Starting from a minimal agent loop (v0.1, no tools, pure conversation), each version **introduces exactly one new concept**, growing all the way to a coding agent that can read/write files, run commands, and run tests (v1.0).
+> **What this is**: A tutorial repo sliced by git tags. Starting from a minimal agent loop (v0.1, no tools, pure conversation), each version **introduces exactly one new concept**, growing all the way to a coding agent that can read/write files, run commands, and run tests (incremental versions, no fixed endpoint).
 >
 > **Who it's for**: Developers who want to understand how an LLM agent actually ticks. No frameworks, no LangChain — just the Python standard library, built from scratch.
 
 ## Why learn agents with this repo
 
 - **Zero third-party dependencies** — Pure Python standard library throughout (`http.client` / `json` / `concurrent.futures`). No LangChain, no requests. Self-contained, every line is readable.
-- **10 version slices, one concept per version** — `git diff v0.1..v0.2` is the entire change for "add a tool". Diffs are readable, cognitive load is low.
+- **Version slices, one concept per version** — `git diff v0.1..v0.2` is the entire change for "add a tool". Diffs are readable, cognitive load is low. Versions keep incrementing with no fixed cap.
 - **A real, runnable agent** — Not a toy demo: supports function calling, streaming output, a permission gate, concurrent tool calls. It can actually read/write files and run commands.
 - **Companion tutorials** — Each version ships a tutorial doc (`docs/tutorials/`) explaining *why* it's designed this way, not just pasting code.
 - **Progressive-growth philosophy** — Watch an agent project grow from 50 lines to production-ready, with every trade-off documented.
@@ -53,7 +53,7 @@ python -m mini_agent             # or interactive input
 
 ## Learning Path
 
-Checkout versions in order `v0.1 → v1.0`, each with a companion tutorial. **This is the core of the repo.**
+Checkout versions in order `v0.1 → v0.X`, each with a companion tutorial. **This is the core of the repo.**
 
 | Version | Topic | One new concept per version | Tutorial |
 |---|---|---|---|
@@ -65,8 +65,11 @@ Checkout versions in order `v0.1 → v1.0`, each with a companion tutorial. **Th
 | **v0.6** | Concurrent tool_calls | `ThreadPoolExecutor` concurrency | [06-concurrent-tool-calls.md](./docs/tutorials/06-concurrent-tool-calls.md) |
 | v0.7 | System prompt engineering | expand system prompt to full spec | _coming soon_ |
 | v0.8 | File operations complete | `list_dir` / `edit_file` / `grep` | _coming soon_ |
-| v0.9 | Shell execution | `run_shell` tool + whitelist perms | _coming soon_ |
-| v1.0 | Context management + planning | message trimming/summary + plan | _coming soon_ |
+| v0.9 | Permission system upgrade | 2D permission (tool_name, pattern) + fnmatch | _coming soon_ |
+| v0.10 | Shell execution | `run_shell` tool + BashArity command generalization | _coming soon_ |
+| v0.11 | Context management | message trimming/summary + `MAX_ITERATIONS` increase | _coming soon_ |
+| v0.12 | Plan guidance | planning mode guidance | _coming soon_ |
+| ... | ... | ... (incremental, add as needed) | ... |
 
 **How to learn by version:**
 
@@ -76,7 +79,7 @@ git checkout v0.1          # switch to v0.1
 # read docs/tutorials/01-minimal-loop.md
 # run the commands in the tutorial
 git checkout v0.2          # see the diff: git diff v0.1..v0.2
-# read 02-first-tool.md ... continue to v1.0
+# read 02-first-tool.md ... continue to the latest version
 ```
 
 ## Project Structure

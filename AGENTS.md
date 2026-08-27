@@ -4,7 +4,7 @@
 
 `agent-from-scratch`（Python 包名 `mini_agent`）是一个**逐步生长的编程 agent**：从最小可用的 agent loop 起步，按需增加工具与能力，目标是能独立完成基础的编程任务（读写改文件、跑命令、跑测试、简单多步任务）。
 
-> 本仓库为多阶段教学仓库，按 git tag `v0.1` → `v1.0` 顺序学习，见 `docs/tutorials/`。
+> 本仓库为多阶段教学仓库，按 git tag `v0.1` → `v0.X` 顺序学习（持续迭代，不设上限），见 `docs/tutorials/`。
 
 设计原则：
 - **零第三方依赖**（仅 Python 标准库），保持自包含、易部署。
@@ -65,7 +65,7 @@ mini_agent/
 
 ## 路线图
 
-按"能完成基础编程工作"倒推，切分为 10 个版本，每版只加一个概念：
+持续迭代，每次加一个概念，直到达到轻量编程 agent 的能力集：
 
 - [x] **v0.1 最简 agent loop**：`call_llm`（非流式）+ `agent_loop`（无工具纯对话）+ `__main__` + `config.py`
 - [x] **v0.2 第一个工具**：`Tool`/`ToolRegistry`/`ToolExecutor` + `calculate` + function calling 协议
@@ -75,8 +75,11 @@ mini_agent/
 - [x] **v0.6 并发 tool_calls**：`ThreadPoolExecutor` 并发执行同一轮多个 tool_calls
 - [x] **v0.7 系统提示词工程化**：`prompt.py`（`build_system_prompt` 分层组装：header 身份 + core_rules 行为规范 + environment 环境信息）
 - [x] **v0.8 文件操作补全**：`list_dir`、`edit_file`、`grep`
-- [ ] **v0.9 shell 执行**：`run_shell` 工具 + 白名单权限
-- [ ] **v1.0 上下文管理 + 规划**：message 裁剪/摘要 + `MAX_ITERATIONS` 调大 + plan 引导
+- [ ] **v0.9 权限系统升级**：二维权限 (tool_name, pattern) + once/always 回复区分 + fnmatch 通配符匹配
+- [ ] **v0.10 shell 执行**：`run_shell` 工具 + BashArity 命令泛化 + 输出截断
+- [ ] **v0.11 上下文管理**：message 裁剪/摘要 + `MAX_ITERATIONS` 调大
+- [ ] **v0.12 plan 引导**：规划模式引导
+- [ ] **...**（持续迭代，按需追加）
 
 > 每加一项，在此打勾并在"当前架构"更新对应模块说明。详细方案见 `docs/plans/teaching-repo-plan.md`。
 

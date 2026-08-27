@@ -3,10 +3,13 @@
 > 状态：方案已确认，待落地
 > 决策记录：重置 main 到 v0.1 / 复用 docs/ 加 tutorials 子目录 / v0.1 为无工具纯对话 loop / 先出方案不动代码
 > 更新：教学文档模板加入"使用指导"章节，随版本演进
+> 更新：改为持续迭代模式，不设固定版本上限，每次加一个功能，直到达到轻量编程 agent 的能力集
 
 ## 1. 目标
 
 把 `mini_agent` 改造成**按版本号切片的多阶段教学仓库**：学习者按 `v0.1 → v0.2 → ...` 顺序 checkout，每个版本只引入一个新概念，配套一份教学文档，最终能理解一个能读写改文件、跑命令、跑测试的编程 agent 是怎么一步步长出来的。
+
+本仓库不限于固定版本数，改为持续迭代模式，每次加一个功能，直到达到轻量编程 agent 的能力集。后续版本按需追加，不设上限。
 
 ## 2. 版本切片表
 
@@ -22,8 +25,11 @@
 | v0.6 | 并发 tool_calls | `ThreadPoolExecutor` 并发执行同一轮多个 tool_calls | 一轮多工具的并发模型 |
 | v0.7 | 系统提示词工程化 | system prompt 从一行扩到完整规范 | prompt 即配置 |
 | v0.8 | 文件操作补全 | `list_dir`/`edit_file`（精准替换）/`grep` | 精准编辑而非整文件重写 |
-| v0.9 | shell 执行 | `run_shell` 工具 + 白名单权限 | 跑测试/跑脚本；shell 权限从严 |
-| v1.0 | 上下文管理 + 规划 | message 裁剪/摘要 + `MAX_ITERATIONS` 调大 + plan 引导 | 长任务不爆上下文 |
+| v0.9 | 权限系统升级 | 二维权限 (tool_name, pattern) + once/always 回复区分 + fnmatch 通配符匹配 | 从一维到二维；命令模式粒度控制 |
+| v0.10 | shell 执行 | `run_shell` 工具 + BashArity 命令泛化 + 输出截断 | 跑测试/跑脚本；shell 权限从严 |
+| v0.11 | 上下文管理 | message 裁剪/摘要 + `MAX_ITERATIONS` 调大 | 长任务不爆上下文 |
+| v0.12 | plan 引导 | 规划模式引导 | 规划与执行分离 |
+| ... | ... | ...（持续迭代，按需追加行） | ... |
 
 > 切分原则：每版只引入一个新概念，代码差异控制在"一个文件或一个新模块"量级，让 `git diff v0.(X-1)..v0.X` 可读。
 
@@ -55,8 +61,11 @@ mini_agent/
         ├── 06-concurrent-tool-calls.md
         ├── 07-system-prompt.md
         ├── 08-file-operations.md
-        ├── 09-shell-execution.md
-        └── 10-context-management.md
+        ├── 09-permission-upgrade.md
+        ├── 10-shell-execution.md
+        ├── 11-context-management.md
+        ├── 12-plan-guidance.md
+        └── ...（持续迭代，按需追加）
 ```
 
 ### 3.1 各目录职责边界
@@ -134,8 +143,10 @@ mini_agent/
 | v0.6 | 让模型一次发多个 tool_calls（如同时调 `read_file` ×2）；观察并发执行日志 |
 | v0.7 | 对比 v0.6 vs v0.7 的 system prompt 让 LLM 行为差异；试长任务 |
 | v0.8 | `edit_file` 精准替换示例；`grep` 搜索示例；`list_dir` 列目录 |
-| v0.9 | `run_shell` 跑 `python tests/test_tools.py`；观察白名单权限；试 `"跑一下测试"` |
-| v1.0 | 长任务验证 `MAX_ITERATIONS` 调大后能跑完；观察上下文裁剪日志 |
+| v0.9 | 观察二维权限：按命令模式询问；`git *` 批准后同类免问；对比 v0.4 的一维权限差异 |
+| v0.10 | `run_shell` 跑 `python tests/test_tools.py`；观察 BashArity 泛化；试 "跑一下测试" |
+| v0.11 | 长任务验证 `MAX_ITERATIONS` 调大后能跑完；观察上下文裁剪日志 |
+| v0.12 | plan 模式引导示例；观察规划与执行的分离 |
 
 ### 5.1 与 `docs/operation/manual.md` 的分工
 
@@ -150,7 +161,7 @@ mini_agent/
 # 教学路径
 
 ## 学习顺序
-v0.1 → v0.2 → ... → v1.0，每版配套一份文档。
+v0.1 → v0.2 → ... → v0.X（持续迭代，不设上限），每版配套一份文档。
 
 ## 环境准备（一次性）
 1. Python 3.9+
@@ -239,7 +250,7 @@ git checkout v0.1          # 切到第一版
 # 读 docs/tutorials/01-minimal-loop.md
 # 跑：$env:PYTHONPATH="src"; python -m mini_agent "你好"
 git checkout v0.2          # 看差异，读 02-first-tool.md
-# ...依次到 v1.0
+# ...依次到最新版
 ```
 
 ## 9. v0.1 代码清单
@@ -313,7 +324,12 @@ def agent_loop(messages):
 - **v0.5**：`agent.py` 的 `call_llm` 改流式，chunk 累积 content + tool_calls；文档重点讲 `Accept-Encoding: identity` 踩坑
 - **v0.6**：`agent.py` 的 tool_calls 执行改 `ThreadPoolExecutor`
 - **v0.7**：`__main__.py` system prompt 扩为完整规范
-- **v0.8-v1.0**：见版本切片表，落地时再细化
+- **v0.8**：新增 `tools/file.py`；`tools/__init__.py` 注册；tests 加 read_file/write_file
+- **v0.9**：`permission.py` 升级（`check()` 二维匹配 + `fnmatch` + `approve()` 存 pattern）；`tools/base.py` 的 `PermissionGate.guard()` 从 args 提取 pattern；`PERMISSION_RULES` 支持 dict 格式
+- **v0.10**：新增 `tools/shell.py`（`run_shell` + `BashArity` + `subprocess` 超时 + 输出截断）；`tools/__init__.py` 注册；`prompt.py` 更新能力描述
+- **v0.11**：`agent.py` 加 message 裁剪/摘要逻辑；`config.py` 调大 `MAX_ITERATIONS`
+- **v0.12**：`prompt.py` 加 plan 引导；`__main__.py` 加 plan 模式入口
+- **v0.13+**：按需追加
 
 ## 11. AGENTS.md 更新要点
 
@@ -322,16 +338,16 @@ def agent_loop(messages):
 - "当前架构"章节跟随最新版更新
 - "运行"章节不变
 - "关键约束"章节不变（这些约束跨版本有效）
-- 顶部加一行："本仓库为多阶段教学仓库，按 git tag v0.1→v1.0 顺序学习，见 `docs/tutorials/`"
+- 顶部加一行："本仓库为多阶段教学仓库，按 git tag v0.1→v0.X 顺序学习（持续迭代），见 `docs/tutorials/`"
 
 ## 12. 验收标准
 
 方案落地后应满足：
-- [ ] `git tag` 列出 v0.1 到 v1.0 共 10 个 tag
+- [ ] `git tag` 按顺序列出 v0.1 起递增的 tag，无固定上限
 - [ ] `git checkout v0.X` 后代码可跑（`python -m mini_agent "你好"` 不报错）
-- [ ] `docs/tutorials/` 下有 10 份文档 + 1 份 README 索引
+- [ ] `docs/tutorials/` 下有与已落地版本对应数量的文档 + 1 份 README 索引
 - [ ] 每份教学文档有"使用指导"章节且命令可跑通
-- [ ] `CHANGELOG.md` 有 10 段，每段 Added/Changed/Why 齐全
+- [ ] `CHANGELOG.md` 每个已落地版本一段，每段 Added/Changed/Why 齐全
 - [ ] `git diff v0.(X-1)..v0.X --stat` 每版差异在"一两个文件"量级
 - [ ] `AGENTS.md` 路线图与版本切片表一致
 
@@ -339,11 +355,12 @@ def agent_loop(messages):
 
 1. **先落地 v0.1 全套**：重置 main + v0.1 代码 + 01 文档 + CHANGELOG + tag
 2. **v0.2 → v0.6**：复用 backup 分支现有代码，按版本顺序重新提交 + 写文档（工作量在文档）
-3. **v0.7 → v1.0**：需新写代码（system prompt 扩写、list_dir/edit_file/grep、run_shell、上下文管理），工作量较大
-4. **每版完成后**：跑 tests、更新 AGENTS.md 路线图打勾、打 tag
+3. **v0.7 → v0.12**：需新写代码（system prompt 扩写、list_dir/edit_file/grep、权限升级、run_shell、上下文管理、plan 引导），工作量较大
+4. **v0.13+**：持续迭代，按需追加新功能
+5. **每版完成后**：跑 tests、更新 AGENTS.md 路线图打勾、打 tag
 
 > v0.2-v0.6 的代码已存在于 backup-pre-teaching 分支，落地主要是拆分提交节奏 + 写文档。
-> v0.7-v1.0 需要新写代码，工作量较大。
+> v0.7+ 需要新写代码，工作量较大。
 
 ## 14. 风险与权衡
 
