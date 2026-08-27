@@ -1,6 +1,6 @@
 # mini_agent 操作手册
 
-> 本手册跟随最新版本更新。当前对应版本：**v0.6**（并发 tool_calls）。
+> 本手册跟随最新版本更新。当前对应版本：**v0.7**（系统提示词工程化）。
 
 ## 1. 环境准备
 
@@ -60,11 +60,26 @@ python -m mini_agent
 
 ---
 
-## 3. 当前能力（v0.4）
+## 3. 当前能力（v0.7）
 
-v0.4 引入了权限闸门，有副作用的工具执行前会问用户：
+v0.7 引入了系统提示词工程化，模型在启动时获得分层组装的 system prompt（身份 + 行为规范 + 环境信息），行为更规范可控。
 
-### 3.1 工具
+### 3.1 System Prompt
+
+启动时由 `prompt.py` 的 `build_system_prompt()` 组装 `messages[0]`，分三层：
+
+| 层 | 函数/常量 | 内容 |
+|---|---|---|
+| 身份 | `header(agent_name)` | 告诉模型是哪个 agent（当前只有 build，为多 agent 预留） |
+| 行为规范 | `_CORE_RULES` | tone、专业客观性、工具用法、安全约束 |
+| 环境信息 | `environment()` | 工作目录、git 状态、平台、日期（动态生成） |
+
+查看当前 system prompt：
+```bash
+$env:PYTHONPATH="src"; python -c "from mini_agent.prompt import build_system_prompt; print(build_system_prompt())"
+```
+
+### 3.2 工具
 
 | 工具 | 参数 | 权限 | 说明 |
 |---|---|---|---|
@@ -72,7 +87,7 @@ v0.4 引入了权限闸门，有副作用的工具执行前会问用户：
 | `read_file` | `path: str` | allow | 读取文本文件内容 |
 | `write_file` | `path: str, content: str` | **ASK** | 写文件，每次执行前问用户 |
 
-### 3.2 权限交互
+### 3.3 权限交互
 `write_file` 执行前会提示：
 ```
 允许执行 write_file({...})? [once/always/reject]
@@ -81,13 +96,13 @@ v0.4 引入了权限闸门，有副作用的工具执行前会问用户：
 - `always`：本轮运行内总是允许，不再问
 - 其他输入：拒绝执行，工具返回拒绝原因给 LLM
 
-### 3.3 工具调用流程
+### 3.4 工具调用流程
 1. LLM 返回 `tool_calls`（一轮可含多个，代码用线程池并发执行）
 2. `ToolExecutor` 先过权限闸门（`PermissionGate.guard`）
 3. 通过则调 handler，失败则捕获异常返回错误信息给 LLM
 4. 结果作为 `role=tool` 消息回灌，进入下一轮
 
-### 3.4 相对路径约定
+### 3.5 相对路径约定
 工具的相对路径（如 `examples/input.txt`）从**项目根目录** `mini_agent/` 起算：
 ```bash
 # 在 mini_agent/ 目录下运行
@@ -101,15 +116,17 @@ python -m mini_agent "读取 examples/input.txt"
 ### 4.1 运行 smoke test
 ```bash
 # 需 PYTHONPATH=src（未 pip install 时）
-$env:PYTHONPATH="src"; python tests/test_tools.py
+$env:PYTHONPATH="src"; python tests/test_prompt.py   # system prompt
+$env:PYTHONPATH="src"; python tests/test_loop.py      # import 链路
+$env:PYTHONPATH="src"; python tests/test_tools.py     # 工具 + 权限
 ```
-覆盖：registry 注册、calculate 正常/非法输入、重复注册、未知工具。
+覆盖：system prompt 分层组装、import 链路、registry 注册、calculate 正常/非法输入、读写文件、权限闸门。
 
 ### 4.2 快速验证 import 链路
 ```bash
 $env:PYTHONPATH="src"
 python -c "from mini_agent.tools import registry; print([t.name for t in registry.list_tools()])"
-# 期望输出: ['calculate']
+# 期望输出: ['calculate', 'read_file', 'write_file']
 ```
 
 ---

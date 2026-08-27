@@ -26,6 +26,7 @@ mini_agent/
 │   ├── agent.py            # agent loop：call_llm + agent_loop（带 tools 参数）
 │   ├── config.py           # 配置占位 + 自动加载 config_local.py（本地真实配置，不进 git）
 │   ├── permission.py       # 权限闸门：allow/deny/ask 三态
+│   ├── prompt.py           # system prompt 分层组装：header + core_rules + environment
 │   └── tools/
 │       ├── __init__.py     # registry + executor 实例
 │       ├── base.py         # Tool / ToolRegistry / ToolExecutor
@@ -33,6 +34,7 @@ mini_agent/
 │       └── file.py         # read_file / write_file 工具
 ├── tests/
 │   ├── test_loop.py        # import 链路 smoke test
+│   ├── test_prompt.py      # system prompt smoke test
 │   └── test_tools.py       # 工具 smoke test
 ├── examples/               # 示例 IO 文件
 └── docs/
@@ -48,12 +50,14 @@ mini_agent/
         ├── 03-file-tools.md
         ├── 04-permission-gate.md
         ├── 05-streaming.md
-        └── 06-concurrent-tool-calls.md
+        ├── 06-concurrent-tool-calls.md
+        └── 07-system-prompt.md
 ```
 
 - LLM 调用：`http.client` 流式，OpenAI function calling 协议（`tools` 参数）。
 - 工具：`calculate`、`read_file`、`write_file`。通过 `ToolRegistry` 注册，`ToolExecutor` 执行。
 - **v0.4 权限闸门**：`write_file` 走 ASK（每次问用户），`read_file`/`calculate` 走 ALLOW。`PermissionGate` 在 Executor 里拦截。
+- **v0.7 系统提示词工程化**：`prompt.py` 的 `build_system_prompt()` 分层组装 system prompt（header 身份 + core_rules 行为规范 + environment 环境信息），`__main__.py` 启动时调一次构造 `messages[0]`。为多 agent 预留 `agent_name` 参数。
 - 迭代上限 `MAX_ITERATIONS = 10`（硬编码，长任务可能静默截断，后续需调）。
 - 包未 pip install 时需 `PYTHONPATH=src`；`pip install -e .` 后可免。
 
@@ -67,7 +71,7 @@ mini_agent/
 - [x] **v0.4 权限闸门**：`permission.py`（allow/deny/ask 三态）+ `PermissionGate`
 - [x] **v0.5 流式输出**：`call_llm` 改流式 + chunk 拼接 + 打字机效果
 - [x] **v0.6 并发 tool_calls**：`ThreadPoolExecutor` 并发执行同一轮多个 tool_calls
-- [ ] **v0.7 系统提示词工程化**：system prompt 从一行扩到完整规范
+- [x] **v0.7 系统提示词工程化**：`prompt.py`（`build_system_prompt` 分层组装：header 身份 + core_rules 行为规范 + environment 环境信息）
 - [ ] **v0.8 文件操作补全**：`list_dir`、`edit_file`、`grep`
 - [ ] **v0.9 shell 执行**：`run_shell` 工具 + 白名单权限
 - [ ] **v1.0 上下文管理 + 规划**：message 裁剪/摘要 + `MAX_ITERATIONS` 调大 + plan 引导

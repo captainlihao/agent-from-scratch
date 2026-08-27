@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.7] - 系统提示词工程化
+
+### Added
+- `src/mini_agent/prompt.py`：`build_system_prompt(agent_name)` 分层组装（header 身份 + `_CORE_RULES` 行为规范 + `environment` 环境信息）；`_detect_git` 纯目录遍历判断 git 仓库
+- `tests/test_prompt.py`：system prompt smoke test（组装/ header / 回退/ 环境字段）
+- `docs/tutorials/07-system-prompt.md`：第七课教学文档
+
+### Changed
+- `src/mini_agent/__main__.py`：`messages[0]` 从一行硬编码字符串改为调用 `build_system_prompt()`
+
+### Why
+- 一行 system prompt 缺环境信息（工作目录/平台/日期），模型靠猜路径和命令易出错。
+- 无行为规范，模型可能啰嗦、加 emoji、复述工具输出、主动总结——多轮迭代时污染上下文。
+- 分层组装（header/core_rules/environment）借鉴 OpenCode 四层结构做减法：去掉 provider 适配（单模型）和 custom 加载（留 v0.8）。
+- `header(agent_name)` 为多 agent/sub-agent 预留接口，当前只实现 build，后续加 explore/plan 只需在 dict 加一行。
+- `agent.py` 不动——核心 loop 仍只认 messages 列表，prompt 构造是入口层职责，保持 loop 清晰。
+
 ## [v0.6] - 并发 tool_calls
 
 ### Changed
