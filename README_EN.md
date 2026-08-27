@@ -8,7 +8,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![Dependencies](https://img.shields.io/badge/dependencies-zero-green)](#)
-[![Versions](https://img.shields.io/badge/versions-v0.1%E2%86%92ongoing-orange)](#learning-path)
+[![Versions](https://img.shields.io/badge/versions-v0.01%E2%86%92ongoing-orange)](#learning-path)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
 
 **English** · **[中文](./README.md)**
@@ -17,14 +17,14 @@
 
 ---
 
-> **What this is**: A tutorial repo sliced by git tags. Starting from a minimal agent loop (v0.1, no tools, pure conversation), each version **introduces exactly one new concept**, growing all the way to a coding agent that can read/write files, run commands, and run tests (incremental versions, no fixed endpoint).
+> **What this is**: A tutorial repo sliced by git tags. Starting from a minimal agent loop (v0.01, no tools, pure conversation), each version **introduces exactly one new concept**, growing all the way to a coding agent that can read/write files, run commands, and run tests (incremental versions, no fixed endpoint).
 >
 > **Who it's for**: Developers who want to understand how an LLM agent actually ticks. No frameworks, no LangChain — just the Python standard library, built from scratch.
 
 ## Why learn agents with this repo
 
 - **Zero third-party dependencies** — Pure Python standard library throughout (`http.client` / `json` / `concurrent.futures`). No LangChain, no requests. Self-contained, every line is readable.
-- **Version slices, one concept per version** — `git diff v0.1..v0.2` is the entire change for "add a tool". Diffs are readable, cognitive load is low. Versions keep incrementing with no fixed cap.
+- **Version slices, one concept per version** — `git diff v0.01..v0.02` is the entire change for "add a tool". Diffs are readable, cognitive load is low. Versions keep incrementing with no fixed cap.
 - **A real, runnable agent** — Not a toy demo: supports function calling, streaming output, a permission gate, concurrent tool calls. It can actually read/write files and run commands.
 - **Companion tutorials** — Each version ships a tutorial doc (`docs/tutorials/`) explaining *why* it's designed this way, not just pasting code.
 - **Progressive-growth philosophy** — Watch an agent project grow from 50 lines to production-ready, with every trade-off documented.
@@ -53,32 +53,32 @@ python -m mini_agent             # or interactive input
 
 ## Learning Path
 
-Checkout versions in order `v0.1 → v0.X`, each with a companion tutorial. **This is the core of the repo.**
+Checkout versions in order `v0.01 → v0.X`, each with a companion tutorial. **This is the core of the repo.**
 
 | Version | Topic | One new concept per version | Tutorial |
 |---|---|---|---|
-| **v0.1** | Minimal agent loop | `call_llm` + `agent_loop` (no tools) | [01-minimal-loop.md](./docs/tutorials/01-minimal-loop.md) |
-| **v0.2** | First tool | `Tool`/`ToolRegistry` + `calculate` + function calling | [02-first-tool.md](./docs/tutorials/02-first-tool.md) |
-| **v0.3** | File read/write tools | `read_file` / `write_file` | [03-file-tools.md](./docs/tutorials/03-file-tools.md) |
-| **v0.4** | Permission gate | `permission.py` (allow/deny/ask) | [04-permission-gate.md](./docs/tutorials/04-permission-gate.md) |
-| **v0.5** | Streaming output | streaming `call_llm` + typewriter effect | [05-streaming.md](./docs/tutorials/05-streaming.md) |
-| **v0.6** | Concurrent tool_calls | `ThreadPoolExecutor` concurrency | [06-concurrent-tool-calls.md](./docs/tutorials/06-concurrent-tool-calls.md) |
-| **v0.7** | System prompt engineering | expand system prompt to full spec | [07-system-prompt.md](./docs/tutorials/07-system-prompt.md) |
-| **v0.8** | File operations complete | `list_dir` / `edit_file` / `grep` | [08-file-operations.md](./docs/tutorials/08-file-operations.md) |
-| **v0.9** | Permission system upgrade | 2D permission (tool_name, pattern) + fnmatch | [09-permission-upgrade.md](./docs/tutorials/09-permission-upgrade.md) |
+| **v0.01** | Minimal agent loop | `call_llm` + `agent_loop` (no tools) | [01-minimal-loop.md](./docs/tutorials/01-minimal-loop.md) |
+| **v0.02** | First tool | `Tool`/`ToolRegistry` + `calculate` + function calling | [02-first-tool.md](./docs/tutorials/02-first-tool.md) |
+| **v0.03** | File read/write tools | `read_file` / `write_file` | [03-file-tools.md](./docs/tutorials/03-file-tools.md) |
+| **v0.04** | Permission gate | `permission.py` (allow/deny/ask) | [04-permission-gate.md](./docs/tutorials/04-permission-gate.md) |
+| **v0.05** | Streaming output | streaming `call_llm` + typewriter effect | [05-streaming.md](./docs/tutorials/05-streaming.md) |
+| **v0.06** | Concurrent tool_calls | `ThreadPoolExecutor` concurrency | [06-concurrent-tool-calls.md](./docs/tutorials/06-concurrent-tool-calls.md) |
+| **v0.07** | System prompt engineering | expand system prompt to full spec | [07-system-prompt.md](./docs/tutorials/07-system-prompt.md) |
+| **v0.08** | File operations complete | `list_dir` / `edit_file` / `grep` | [08-file-operations.md](./docs/tutorials/08-file-operations.md) |
+| **v0.09** | Permission system upgrade | 2D permission (tool_name, pattern) + fnmatch | [09-permission-upgrade.md](./docs/tutorials/09-permission-upgrade.md) |
 | **v0.10** | Shell execution | `run_shell` tool + subprocess + timeout + output truncation + 2D command pattern permission | [10-shell-execution.md](./docs/tutorials/10-shell-execution.md) |
-| v0.11 | Context management | message trimming/summary + `MAX_ITERATIONS` increase | _coming soon_ |
-| v0.12 | Plan guidance | planning mode guidance | _coming soon_ |
+| v0.011 | Context management | message trimming/summary + `MAX_ITERATIONS` increase | _coming soon_ |
+| v0.012 | Plan guidance | planning mode guidance | _coming soon_ |
 | ... | ... | ... (incremental, add as needed) | ... |
 
 **How to learn by version:**
 
 ```bash
 git tag                    # list all versions
-git checkout v0.1          # switch to v0.1
+git checkout v0.01          # switch to v0.01
 # read docs/tutorials/01-minimal-loop.md
 # run the commands in the tutorial
-git checkout v0.2          # see the diff: git diff v0.1..v0.2
+git checkout v0.02          # see the diff: git diff v0.01..v0.02
 # read 02-first-tool.md ... continue to the latest version
 ```
 

@@ -1,6 +1,6 @@
 # 第 4 课：权限闸门
 
-> 版本 v0.4 | [上一课](03-file-tools.md) | [下一课](05-streaming.md)
+> 版本 v0.04 | [上一课](03-file-tools.md) | [下一课](05-streaming.md)
 
 ## 本课目标
 
@@ -10,7 +10,7 @@
 ## 前置
 
 - 已读 [第 3 课](03-file-tools.md)，理解 read_file/write_file 工具
-- `git checkout v0.4` 切到本版代码
+- `git checkout v0.04` 切到本版代码
 
 ## 新增/改动了什么
 
@@ -137,7 +137,7 @@ ASK 是"动态决策"——规则说"这个工具需要人确认"，但最终执
 
 ### 为什么 guard 里有 _ask_lock
 
-`_ask_lock` 是 `threading.Lock()`。v0.4 还是串行执行，但为 v0.6 的并发 tool_calls 预留：
+`_ask_lock` 是 `threading.Lock()`。v0.04 还是串行执行，但为 v0.06 的并发 tool_calls 预留：
 并发时多个线程可能同时触发 ASK，锁保证交互不会交错（两个权限提示混在一起用户没法看）。
 
 ### 为什么拒绝原因回灌给 LLM
@@ -190,7 +190,7 @@ $env:PYTHONPATH="src"; python -m mini_agent "把'hello'写入 examples/test.txt"
 
 ### 本版独有特性
 
-- **权限交互提示**：write_file 执行前出现 `[once/always/reject]` 提示，这是 v0.4 最明显的体感变化。
+- **权限交互提示**：write_file 执行前出现 `[once/always/reject]` 提示，这是 v0.04 最明显的体感变化。
 - **always 免再问**：选了 always 后，本轮内再让 agent 写别的文件，不会再次询问。
 - **拒绝是工具结果**：拒绝不会让 agent 崩溃，而是作为工具结果回灌，LLM 据此调整策略。
 

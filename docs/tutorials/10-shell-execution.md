@@ -4,7 +4,7 @@
 
 ## 本课目标
 
-新增 `run_shell` 工具，让 agent 能跑命令（跑测试、跑脚本）。v0.9 的二维权限系统已为命令模式权限铺路，本课落地工具本身。
+新增 `run_shell` 工具，让 agent 能跑命令（跑测试、跑脚本）。v0.09 的二维权限系统已为命令模式权限铺路，本课落地工具本身。
 
 ## 前置
 
@@ -14,7 +14,7 @@
 ## 新增/改动了什么
 
 ```bash
-git diff --stat v0.9..v0.10
+git diff --stat v0.09..v0.10
 ```
 
 | 文件 | 改动 |
@@ -52,7 +52,7 @@ def run_shell(command: str):
 
 ### 2. 二维命令模式权限
 
-v0.9 的 `_extract_pattern()` 对 `run_shell` 返回完整命令字符串，v0.10 的权限规则用 fnmatch 通配符按命令前缀匹配：
+v0.09 的 `_extract_pattern()` 对 `run_shell` 返回完整命令字符串，v0.10 的权限规则用 fnmatch 通配符按命令前缀匹配：
 
 ```python
 PERMISSION_RULES = {
@@ -73,7 +73,7 @@ PERMISSION_RULES = {
 
 ### 3. _from_config 排序修复
 
-v0.10 发现并修复了 v0.9 的一个 findLast 语义缺陷：
+v0.10 发现并修复了 v0.09 的一个 findLast 语义缺陷：
 
 **问题**：复杂格式 dict 里 `*` 放在最后，`_from_config` 按插入顺序展开，`*` 排在具体模式后面。findLast 从后往前找，先碰到 `*`（匹配一切）就返回，具体模式被遮蔽。
 
@@ -90,7 +90,7 @@ findLast 从后往前找，先碰具体模式（如 `echo *`），匹配就返�
 
 ### 为什么不做 BashArity 命令泛化？
 
-原计划提了 "BashArity 命令泛化"（把 `git checkout main` 泛化为 `git checkout *`），但 v0.9 的 `_extract_pattern` 返回完整 command 字符串，fnmatch 的 `git *` 通配符已能按命令前缀匹配。教学简洁性优先，不做 BashArity。如果后续发现需要按"命令+参数"分离匹配，再引入。
+原计划提了 "BashArity 命令泛化"（把 `git checkout main` 泛化为 `git checkout *`），但 v0.09 的 `_extract_pattern` 返回完整 command 字符串，fnmatch 的 `git *` 通配符已能按命令前缀匹配。教学简洁性优先，不做 BashArity。如果后续发现需要按"命令+参数"分离匹配，再引入。
 
 ### 为什么用 shell=True？
 
@@ -98,7 +98,7 @@ findLast 从后往前找，先碰具体模式（如 `echo *`），匹配就返�
 
 ### 为什么超时 30s？
 
-跑测试够用。长任务（如 `npm install`）可能超时，后续 v0.11 上下文管理再调。超时后返回错误信息，不杀 agent loop。
+跑测试够用。长任务（如 `npm install`）可能超时，后续 v0.011 上下文管理再调。超时后返回错误信息，不杀 agent loop。
 
 ### 为什么输出截断 2000 字符？
 

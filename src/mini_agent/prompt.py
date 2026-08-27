@@ -2,7 +2,7 @@
 
 借鉴 OpenCode 的分层思路（header/environment/custom），按 mini_agent
 渐进生长原则做最小版：header（身份）+ core_rules（行为规范）+ environment（环境）。
-custom（AGENTS.md 加载）留到 v0.8 文件工具补全后。
+custom（AGENTS.md 加载）留到 v0.08 文件工具补全后。
 """
 
 import os
@@ -26,7 +26,7 @@ def header(agent_name: str = "build") -> str:
             "你通过调用工具完成编程任务：当前能读写改文件、跑命令、做数学计算。"
             "你的目标是独立完成基础的编程任务，不只是聊天。"
         ),
-        # 预留，v0.7 不实现：
+        # 预留，v0.07 不实现：
         # "explore": "你是 mini_agent 的 explore 子 agent，只负责只读探索代码库...",
         # "plan": "你是 mini_agent 的 plan agent，只负责规划不执行...",
     }

@@ -1,6 +1,6 @@
 # 第 6 课：并发 tool_calls
 
-> 版本 v0.6 | [上一课](05-streaming.md) | [下一课](07-system-prompt.md)
+> 版本 v0.06 | [上一课](05-streaming.md) | [下一课](07-system-prompt.md)
 
 ## 本课目标
 
@@ -10,7 +10,7 @@
 ## 前置
 
 - 已读 [第 5 课](05-streaming.md)，理解流式 call_llm
-- `git checkout v0.6` 切到本版代码
+- `git checkout v0.06` 切到本版代码
 
 ## 新增/改动了什么
 
@@ -25,14 +25,14 @@
 
 ### 串行 vs 并发
 
-**v0.5 串行**：同一轮的 N 个 tool_calls 用 `for` 循环逐个执行，总耗时 = Σ(每个工具耗时)。
+**v0.05 串行**：同一轮的 N 个 tool_calls 用 `for` 循环逐个执行，总耗时 = Σ(每个工具耗时)。
 
 ```python
 for tc in msg["tool_calls"]:
     result = executor.execute(name, args)   # 第 2 个等第 1 个跑完才开始
 ```
 
-**v0.6 并发**：用 `ThreadPoolExecutor` 把 N 个 tool_calls 丢进线程池同时执行，总耗时 ≈ max(每个工具耗时)。
+**v0.06 并发**：用 `ThreadPoolExecutor` 把 N 个 tool_calls 丢进线程池同时执行，总耗时 ≈ max(每个工具耗时)。
 
 ```python
 with ThreadPoolExecutor(max_workers=len(tool_calls)) as pool:
@@ -102,9 +102,9 @@ tool_calls 的回灌需要按原序（LLM 发的 tool_calls[0] 对应的 tool �
 
 ### 为什么权限闸门的 _ask_lock 在这里起作用
 
-v0.4 的 `PermissionGate` 里有 `self._ask_lock = threading.Lock()`。
+v0.04 的 `PermissionGate` 里有 `self._ask_lock = threading.Lock()`。
 并发执行时，如果两个 write_file 同时触发 ASK，没有锁会导致两个权限提示交错（终端乱码）。
-锁保证同一时刻只有一个 ASK 交互在终端进行——v0.4 埋的伏笔在 v0.6 生效。
+锁保证同一时刻只有一个 ASK 交互在终端进行——v0.04 埋的伏笔在 v0.06 生效。
 
 ## 使用指导
 
@@ -137,7 +137,7 @@ $env:PYTHONPATH="src"; python -m mini_agent "同时读取 examples/input.txt 和
   执行 read_file -> 3 + 5 * 3
 ```
 注意：两个 `[Executor] 执行 Tool: read_file` 几乎同时出现——并发执行的证据。
-对比 v0.5 串行版，第一个 read_file 跑完打印结果后，第二个才开始。
+对比 v0.05 串行版，第一个 read_file 跑完打印结果后，第二个才开始。
 
 **示例 2：并发计算 + 读取**
 ```bash
@@ -147,12 +147,12 @@ $env:PYTHONPATH="src"; python -m mini_agent "计算 100*200，同时读取 examp
 
 **示例 3：对比串行 vs 并发**
 ```bash
-# v0.5（串行）：两个 read_file 依次执行
-git checkout v0.5
+# v0.05（串行）：两个 read_file 依次执行
+git checkout v0.05
 $env:PYTHONPATH="src"; python -m mini_agent "同时读取 examples/input.txt 和 examples/input2.txt"
 
-# v0.6（并发）：两个 read_file 同时执行
-git checkout v0.6
+# v0.06（并发）：两个 read_file 同时执行
+git checkout v0.06
 $env:PYTHONPATH="src"; python -m mini_agent "同时读取 examples/input.txt 和 examples/input2.txt"
 ```
 
@@ -176,13 +176,13 @@ $env:PYTHONPATH="src"; python -m mini_agent "同时读取 examples/input.txt 和
    ```
    预期：两个 read_file 的 Executor 日志几乎同时出现，结果一起回灌。
 
-3. **对比 v0.5 vs v0.6**：
+3. **对比 v0.05 vs v0.06**：
    ```bash
-   git checkout v0.5
+   git checkout v0.05
    $env:PYTHONPATH="src"; python -m mini_agent "同时读取 examples/input.txt 和 examples/input2.txt"
    # 串行：第一个 read_file 结果打印后，第二个才开始
 
-   git checkout v0.6
+   git checkout v0.06
    $env:PYTHONPATH="src"; python -m mini_agent "同时读取 examples/input.txt 和 examples/input2.txt"
    # 并发：两个 read_file 的 Executor 日志几乎同时出现
    ```
@@ -193,9 +193,9 @@ $env:PYTHONPATH="src"; python -m mini_agent "同时读取 examples/input.txt 和
 
 ---
 
-## v0.6.1 修订：多轮上下文状态契约
+## v0.06.1 修订：多轮上下文状态契约
 
-> 版本 v0.6.1 | v0.6 的 patch，不改功能，只修多轮上下文的隐性 bug。
+> 版本 v0.06.1 | v0.06 的 patch，不改功能，只修多轮上下文的隐性 bug。
 
 ### 发现的问题
 
@@ -262,7 +262,7 @@ if len(sys.argv) > 1:
 
 ### 遗留问题（未在本版修）
 
-1. **MAX_ITERATIONS 半截状态清理**：docstring 已点明风险，但未实现自动清理。长任务触发上限后，下一轮仍可能协议报错。留待 v0.11 上下文管理一并处理。
+1. **MAX_ITERATIONS 半截状态清理**：docstring 已点明风险，但未实现自动清理。长任务触发上限后，下一轮仍可能协议报错。留待 v0.011 上下文管理一并处理。
 2. **`agent_loop` 返回值语义**：当前返回 content 字符串仅供打印，真正的状态在 messages 副作用里。这种"返回值 + 副作用"双通道设计不够干净，但改它要动签名，留待后续。
 
 ### 本版改动文件

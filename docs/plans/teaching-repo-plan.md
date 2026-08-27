@@ -1,13 +1,13 @@
 # 多阶段教学仓库方案
 
 > 状态：方案已确认，待落地
-> 决策记录：重置 main 到 v0.1 / 复用 docs/ 加 tutorials 子目录 / v0.1 为无工具纯对话 loop / 先出方案不动代码
+> 决策记录：重置 main 到 v0.01 / 复用 docs/ 加 tutorials 子目录 / v0.01 为无工具纯对话 loop / 先出方案不动代码
 > 更新：教学文档模板加入"使用指导"章节，随版本演进
 > 更新：改为持续迭代模式，不设固定版本上限，每次加一个功能，直到达到轻量编程 agent 的能力集
 
 ## 1. 目标
 
-把 `mini_agent` 改造成**按版本号切片的多阶段教学仓库**：学习者按 `v0.1 → v0.2 → ...` 顺序 checkout，每个版本只引入一个新概念，配套一份教学文档，最终能理解一个能读写改文件、跑命令、跑测试的编程 agent 是怎么一步步长出来的。
+把 `mini_agent` 改造成**按版本号切片的多阶段教学仓库**：学习者按 `v0.01 → v0.02 → ...` 顺序 checkout，每个版本只引入一个新概念，配套一份教学文档，最终能理解一个能读写改文件、跑命令、跑测试的编程 agent 是怎么一步步长出来的。
 
 本仓库不限于固定版本数，改为持续迭代模式，每次加一个功能，直到达到轻量编程 agent 的能力集。后续版本按需追加，不设上限。
 
@@ -17,18 +17,18 @@
 
 | 版本 | 主题 | 相对上一版只加什么 | 教学文档要点 |
 |---|---|---|---|
-| v0.1 | 最简 agent loop | `call_llm`（非流式）+ `agent_loop`（无工具纯对话）+ `__main__` + `config.py` | 什么是 agent loop；messages 列表；结束条件；http.client 调 LLM |
-| v0.2 | 第一个工具 | `Tool`/`ToolRegistry`/`ToolExecutor` + `calculate` + function calling 协议 | 工具怎么接到 loop 里；`role=tool` 回灌；工具签名约定 |
-| v0.3 | 文件读写工具 | `read_file`/`write_file` | agent 如何读写文件；副作用工具的风险 |
-| v0.4 | 权限闸门 | `permission.py`（allow/deny/ask 三态）+ `PermissionGate` + `write_file` 改 ASK | 让 agent 改文件前先问人；三态权限模型 |
-| v0.5 | 流式输出 | `call_llm` 改流式 + chunk 拼接 + 打字机效果 | 为什么用流式；`Accept-Encoding: identity` 踩坑 |
-| v0.6 | 并发 tool_calls | `ThreadPoolExecutor` 并发执行同一轮多个 tool_calls | 一轮多工具的并发模型 |
-| v0.7 | 系统提示词工程化 | system prompt 从一行扩到完整规范 | prompt 即配置 |
-| v0.8 | 文件操作补全 | `list_dir`/`edit_file`（精准替换）/`grep` | 精准编辑而非整文件重写 |
-| v0.9 | 权限系统升级 | 二维权限 (tool_name, pattern) + once/always 回复区分 + fnmatch 通配符匹配 | 从一维到二维；命令模式粒度控制 |
+| v0.01 | 最简 agent loop | `call_llm`（非流式）+ `agent_loop`（无工具纯对话）+ `__main__` + `config.py` | 什么是 agent loop；messages 列表；结束条件；http.client 调 LLM |
+| v0.02 | 第一个工具 | `Tool`/`ToolRegistry`/`ToolExecutor` + `calculate` + function calling 协议 | 工具怎么接到 loop 里；`role=tool` 回灌；工具签名约定 |
+| v0.03 | 文件读写工具 | `read_file`/`write_file` | agent 如何读写文件；副作用工具的风险 |
+| v0.04 | 权限闸门 | `permission.py`（allow/deny/ask 三态）+ `PermissionGate` + `write_file` 改 ASK | 让 agent 改文件前先问人；三态权限模型 |
+| v0.05 | 流式输出 | `call_llm` 改流式 + chunk 拼接 + 打字机效果 | 为什么用流式；`Accept-Encoding: identity` 踩坑 |
+| v0.06 | 并发 tool_calls | `ThreadPoolExecutor` 并发执行同一轮多个 tool_calls | 一轮多工具的并发模型 |
+| v0.07 | 系统提示词工程化 | system prompt 从一行扩到完整规范 | prompt 即配置 |
+| v0.08 | 文件操作补全 | `list_dir`/`edit_file`（精准替换）/`grep` | 精准编辑而非整文件重写 |
+| v0.09 | 权限系统升级 | 二维权限 (tool_name, pattern) + once/always 回复区分 + fnmatch 通配符匹配 | 从一维到二维；命令模式粒度控制 |
 | v0.10 | shell 执行 | `run_shell` 工具 + subprocess 超时 + 输出截断 + 二维命令模式权限 | 跑测试/跑脚本；shell 权限从严 |
-| v0.11 | 上下文管理 | message 裁剪/摘要 + `MAX_ITERATIONS` 调大 | 长任务不爆上下文 |
-| v0.12 | plan 引导 | 规划模式引导 | 规划与执行分离 |
+| v0.011 | 上下文管理 | message 裁剪/摘要 + `MAX_ITERATIONS` 调大 | 长任务不爆上下文 |
+| v0.012 | plan 引导 | 规划模式引导 | 规划与执行分离 |
 | ... | ... | ...（持续迭代，按需追加行） | ... |
 
 > 切分原则：每版只引入一个新概念，代码差异控制在"一个文件或一个新模块"量级，让 `git diff v0.(X-1)..v0.X` 可读。
@@ -103,7 +103,7 @@ mini_agent/
 重点用 `git diff v0.(X-1)..v0.X -- <file>` 的真实差异，让学习者看到"加了哪几行"。
 
 ## 为什么这样设计
-记录踩坑/权衡。v0.5 要讲"为什么不用 requests"；v0.4 要讲"为什么三态不是两态"。
+记录踩坑/权衡。v0.05 要讲"为什么不用 requests"；v0.04 要讲"为什么三态不是两态"。
 
 ## 使用指导
 ### 本版可用的命令
@@ -111,11 +111,11 @@ mini_agent/
 
 ### 本版典型示例
 3-5 个能跑的示例，每个给命令 + 预期输出。
-示例随版本变化：v0.1 只能对话，v0.2+ 能调工具，v0.4+ 有权限交互。
+示例随版本变化：v0.01 只能对话，v0.02+ 能调工具，v0.04+ 有权限交互。
 
 ### 本版独有特性
 本版新引入的、值得观察的现象。
-例：v0.4 的权限交互 `[once/always/reject]`；v0.5 的流式打字机效果；v0.6 的并发 tool_calls 日志。
+例：v0.04 的权限交互 `[once/always/reject]`；v0.05 的流式打字机效果；v0.06 的并发 tool_calls 日志。
 
 ## 本版完整代码
 指向 `src/mini_agent/` 对应文件，不贴大段代码。
@@ -135,18 +135,18 @@ mini_agent/
 
 | 版本 | 使用指导独有内容 |
 |---|---|
-| v0.1 | 仅对话；交互模式 `你:` 提示符；`exit`/`quit` 退出；无工具可调 |
-| v0.2 | 调 `calculate`；观察 `role=tool` 消息回灌；试 `"计算 3+5*2"` |
-| v0.3 | 调 `read_file`/`write_file`；`write_file` 的 `"路径\n内容"` 参数格式；试 `"读取 examples/input.txt 并总结"` |
-| v0.4 | `write_file` 触发权限提示；`once`/`always`/`reject` 三选项说明；观察拒绝后 LLM 如何反应 |
-| v0.5 | 流式打字机效果（看终端逐字出现）；对比 v0.4 的"整段输出"差异 |
-| v0.6 | 让模型一次发多个 tool_calls（如同时调 `read_file` ×2）；观察并发执行日志 |
-| v0.7 | 对比 v0.6 vs v0.7 的 system prompt 让 LLM 行为差异；试长任务 |
-| v0.8 | `edit_file` 精准替换示例；`grep` 搜索示例；`list_dir` 列目录 |
-| v0.9 | 观察二维权限：按命令模式询问；`git *` 批准后同类免问；对比 v0.4 的一维权限差异 |
+| v0.01 | 仅对话；交互模式 `你:` 提示符；`exit`/`quit` 退出；无工具可调 |
+| v0.02 | 调 `calculate`；观察 `role=tool` 消息回灌；试 `"计算 3+5*2"` |
+| v0.03 | 调 `read_file`/`write_file`；`write_file` 的 `"路径\n内容"` 参数格式；试 `"读取 examples/input.txt 并总结"` |
+| v0.04 | `write_file` 触发权限提示；`once`/`always`/`reject` 三选项说明；观察拒绝后 LLM 如何反应 |
+| v0.05 | 流式打字机效果（看终端逐字出现）；对比 v0.04 的"整段输出"差异 |
+| v0.06 | 让模型一次发多个 tool_calls（如同时调 `read_file` ×2）；观察并发执行日志 |
+| v0.07 | 对比 v0.06 vs v0.07 的 system prompt 让 LLM 行为差异；试长任务 |
+| v0.08 | `edit_file` 精准替换示例；`grep` 搜索示例；`list_dir` 列目录 |
+| v0.09 | 观察二维权限：按命令模式询问；`git *` 批准后同类免问；对比 v0.04 的一维权限差异 |
 | v0.10 | `run_shell` 跑 `python tests/test_tools.py`；观察二维命令模式权限；试 "跑一下测试" |
-| v0.11 | 长任务验证 `MAX_ITERATIONS` 调大后能跑完；观察上下文裁剪日志 |
-| v0.12 | plan 模式引导示例；观察规划与执行的分离 |
+| v0.011 | 长任务验证 `MAX_ITERATIONS` 调大后能跑完；观察上下文裁剪日志 |
+| v0.012 | plan 模式引导示例；观察规划与执行的分离 |
 
 ### 5.1 与 `docs/operation/manual.md` 的分工
 
@@ -161,7 +161,7 @@ mini_agent/
 # 教学路径
 
 ## 学习顺序
-v0.1 → v0.2 → ... → v0.X（持续迭代，不设上限），每版配套一份文档。
+v0.01 → v0.02 → ... → v0.X（持续迭代，不设上限），每版配套一份文档。
 
 ## 环境准备（一次性）
 1. Python 3.9+
@@ -172,7 +172,7 @@ v0.1 → v0.2 → ... → v0.X（持续迭代，不设上限），每版配套�
    - 免安装：`$env:PYTHONPATH="src"` (PowerShell) / `PYTHONPATH=src` (bash)
 
 ## 如何切版本
-git checkout v0.1
+git checkout v0.01
 读 01-minimal-loop.md，跑"使用指导"里的命令。
 
 ## 完整使用手册
@@ -184,7 +184,7 @@ docs/operation/manual.md — 最新版的完整用法。
 ```markdown
 # Changelog
 
-## [v0.1] - 最简 agent loop
+## [v0.01] - 最简 agent loop
 ### Added
 - `src/mini_agent/agent.py`：call_llm（非流式）+ agent_loop
 - `src/mini_agent/__main__.py`：CLI 入口
@@ -192,7 +192,7 @@ docs/operation/manual.md — 最新版的完整用法。
 ### Why
 - 从最小可用的对话 loop 起步，先讲清"什么是 agent loop"。
 
-## [v0.2] - 第一个工具
+## [v0.02] - 第一个工具
 ...
 ```
 
@@ -200,9 +200,9 @@ docs/operation/manual.md — 最新版的完整用法。
 
 ## 8. Git 操作清单
 
-### 8.1 初始化：重置 main 到 v0.1
+### 8.1 初始化：重置 main 到 v0.01
 
-> 决策已确认：重置 main 到 v0.1，丢失现有 4 个 commit。
+> 决策已确认：重置 main 到 v0.01，丢失现有 4 个 commit。
 
 ```bash
 # 1. 备份现有代码（万一要参考）
@@ -212,15 +212,15 @@ git branch backup-pre-teaching
 git checkout --orphan main-new
 git rm -rf .
 
-# 3. 放入 v0.1 代码 + 文档（见第 9 节）
+# 3. 放入 v0.01 代码 + 文档（见第 9 节）
 #    只放：agent.py(非流式版) / __main__.py / config.py / __init__.py
 #    + pyproject.toml + README.md + AGENTS.md(精简版)
 #    + docs/tutorials/01-minimal-loop.md + docs/tutorials/README.md
 #    + CHANGELOG.md + .gitignore
 
 git add -A
-git commit -m "v0.1: 最简 agent loop"
-git tag -a v0.1 -m "v0.1: 最简 agent loop"
+git commit -m "v0.01: 最简 agent loop"
+git tag -a v0.01 -m "v0.01: 最简 agent loop"
 
 # 4. 替换 main
 git branch -D main
@@ -246,16 +246,16 @@ git tag -a v0.X -m "v0.X: {主题}"
 git clone <repo>
 cd mini_agent
 git tag                    # 看所有版本
-git checkout v0.1          # 切到第一版
+git checkout v0.01          # 切到第一版
 # 读 docs/tutorials/01-minimal-loop.md
 # 跑：$env:PYTHONPATH="src"; python -m mini_agent "你好"
-git checkout v0.2          # 看差异，读 02-first-tool.md
+git checkout v0.02          # 看差异，读 02-first-tool.md
 # ...依次到最新版
 ```
 
-## 9. v0.1 代码清单
+## 9. v0.01 代码清单
 
-v0.1 只保留 4 个源文件，删掉所有工具/权限相关代码。
+v0.01 只保留 4 个源文件，删掉所有工具/权限相关代码。
 
 ### 9.1 `src/mini_agent/agent.py`（非流式版，约 30 行）
 
@@ -301,7 +301,7 @@ def agent_loop(messages):
     return "达到最大迭代次数"
 ```
 
-> v0.1 的 `call_llm` 不带 `tools` 参数、不流式、不处理 tool_calls。
+> v0.01 的 `call_llm` 不带 `tools` 参数、不流式、不处理 tool_calls。
 > `agent_loop` 不执行工具，只判断 `tool_calls` 为空就结束。第一课 loop 概念最干净。
 
 ### 9.2 其他文件
@@ -310,26 +310,26 @@ def agent_loop(messages):
 - `config.py`：与现有版一致
 - `__init__.py`：空文件
 
-### 9.3 删除的文件（v0.1 不要）
+### 9.3 删除的文件（v0.01 不要）
 
-- `src/mini_agent/permission.py`（v0.4 才加）
-- `src/mini_agent/tools/`（整个目录，v0.2 才加）
-- `tests/test_tools.py`（v0.2 才有工具可测；v0.1 可加一个 `test_loop.py` 测 import 链路）
+- `src/mini_agent/permission.py`（v0.04 才加）
+- `src/mini_agent/tools/`（整个目录，v0.02 才加）
+- `tests/test_tools.py`（v0.02 才有工具可测；v0.01 可加一个 `test_loop.py` 测 import 链路）
 
 ## 10. 后续版本代码差异要点
 
-- **v0.2**：新增 `tools/base.py`+`calc.py`+`__init__.py`；`agent.py` 加 `tools` 参数 + tool_calls 执行 + `role=tool` 回灌；`__main__.py` system prompt 改"通过调用工具完成任务"；新增 `tests/test_tools.py`
-- **v0.3**：新增 `tools/file.py`；`tools/__init__.py` 注册；tests 加 read_file/write_file
-- **v0.4**：新增 `permission.py`；`tools/base.py` 的 Executor 加 gate；`tools/__init__.py` 传 gate；write_file 改 ASK
-- **v0.5**：`agent.py` 的 `call_llm` 改流式，chunk 累积 content + tool_calls；文档重点讲 `Accept-Encoding: identity` 踩坑
-- **v0.6**：`agent.py` 的 tool_calls 执行改 `ThreadPoolExecutor`
-- **v0.7**：`__main__.py` system prompt 扩为完整规范
-- **v0.8**：新增 `tools/file.py`；`tools/__init__.py` 注册；tests 加 read_file/write_file
-- **v0.9**：`permission.py` 升级（`check()` 二维匹配 + `fnmatch` + `approve()` 存 pattern）；`tools/base.py` 的 `PermissionGate.guard()` 从 args 提取 pattern；`PERMISSION_RULES` 支持 dict 格式
+- **v0.02**：新增 `tools/base.py`+`calc.py`+`__init__.py`；`agent.py` 加 `tools` 参数 + tool_calls 执行 + `role=tool` 回灌；`__main__.py` system prompt 改"通过调用工具完成任务"；新增 `tests/test_tools.py`
+- **v0.03**：新增 `tools/file.py`；`tools/__init__.py` 注册；tests 加 read_file/write_file
+- **v0.04**：新增 `permission.py`；`tools/base.py` 的 Executor 加 gate；`tools/__init__.py` 传 gate；write_file 改 ASK
+- **v0.05**：`agent.py` 的 `call_llm` 改流式，chunk 累积 content + tool_calls；文档重点讲 `Accept-Encoding: identity` 踩坑
+- **v0.06**：`agent.py` 的 tool_calls 执行改 `ThreadPoolExecutor`
+- **v0.07**：`__main__.py` system prompt 扩为完整规范
+- **v0.08**：新增 `tools/file.py`；`tools/__init__.py` 注册；tests 加 read_file/write_file
+- **v0.09**：`permission.py` 升级（`check()` 二维匹配 + `fnmatch` + `approve()` 存 pattern）；`tools/base.py` 的 `PermissionGate.guard()` 从 args 提取 pattern；`PERMISSION_RULES` 支持 dict 格式
 - **v0.10**：新增 `tools/shell.py`（`run_shell` + `subprocess` 超时 + 输出截断）；`tools/__init__.py` 注册；`permission.py` 加 `run_shell` 二维权限规则 + `_from_config` 排序修复（`*` 排最前）；`prompt.py` 更新能力描述
-- **v0.11**：`agent.py` 加 message 裁剪/摘要逻辑；`config.py` 调大 `MAX_ITERATIONS`
-- **v0.12**：`prompt.py` 加 plan 引导；`__main__.py` 加 plan 模式入口
-- **v0.13+**：按需追加
+- **v0.011**：`agent.py` 加 message 裁剪/摘要逻辑；`config.py` 调大 `MAX_ITERATIONS`
+- **v0.012**：`prompt.py` 加 plan 引导；`__main__.py` 加 plan 模式入口
+- **v0.013+**：按需追加
 
 ## 11. AGENTS.md 更新要点
 
@@ -338,12 +338,12 @@ def agent_loop(messages):
 - "当前架构"章节跟随最新版更新
 - "运行"章节不变
 - "关键约束"章节不变（这些约束跨版本有效）
-- 顶部加一行："本仓库为多阶段教学仓库，按 git tag v0.1→v0.X 顺序学习（持续迭代），见 `docs/tutorials/`"
+- 顶部加一行："本仓库为多阶段教学仓库，按 git tag v0.01→v0.X 顺序学习（持续迭代），见 `docs/tutorials/`"
 
 ## 12. 验收标准
 
 方案落地后应满足：
-- [ ] `git tag` 按顺序列出 v0.1 起递增的 tag，无固定上限
+- [ ] `git tag` 按顺序列出 v0.01 起递增的 tag，无固定上限
 - [ ] `git checkout v0.X` 后代码可跑（`python -m mini_agent "你好"` 不报错）
 - [ ] `docs/tutorials/` 下有与已落地版本对应数量的文档 + 1 份 README 索引
 - [ ] 每份教学文档有"使用指导"章节且命令可跑通
@@ -353,18 +353,18 @@ def agent_loop(messages):
 
 ## 13. 执行顺序建议
 
-1. **先落地 v0.1 全套**：重置 main + v0.1 代码 + 01 文档 + CHANGELOG + tag
-2. **v0.2 → v0.6**：复用 backup 分支现有代码，按版本顺序重新提交 + 写文档（工作量在文档）
-3. **v0.7 → v0.12**：需新写代码（system prompt 扩写、list_dir/edit_file/grep、权限升级、run_shell、上下文管理、plan 引导），工作量较大
-4. **v0.13+**：持续迭代，按需追加新功能
+1. **先落地 v0.01 全套**：重置 main + v0.01 代码 + 01 文档 + CHANGELOG + tag
+2. **v0.02 → v0.06**：复用 backup 分支现有代码，按版本顺序重新提交 + 写文档（工作量在文档）
+3. **v0.07 → v0.012**：需新写代码（system prompt 扩写、list_dir/edit_file/grep、权限升级、run_shell、上下文管理、plan 引导），工作量较大
+4. **v0.013+**：持续迭代，按需追加新功能
 5. **每版完成后**：跑 tests、更新 AGENTS.md 路线图打勾、打 tag
 
-> v0.2-v0.6 的代码已存在于 backup-pre-teaching 分支，落地主要是拆分提交节奏 + 写文档。
-> v0.7+ 需要新写代码，工作量较大。
+> v0.02-v0.06 的代码已存在于 backup-pre-teaching 分支，落地主要是拆分提交节奏 + 写文档。
+> v0.07+ 需要新写代码，工作量较大。
 
 ## 14. 风险与权衡
 
 - **重置 main 丢失 4 个 commit**：已用 `backup-pre-teaching` 分支备份，需要时可查
-- **v0.1 代码与现有代码差异大**：是有意的，第一课必须最简。现有代码会在 v0.2-v0.6 逐步加回
+- **v0.01 代码与现有代码差异大**：是有意的，第一课必须最简。现有代码会在 v0.02-v0.06 逐步加回
 - **教学文档维护成本**：代码改了文档要跟。用"指向文件 + diff"而非"贴完整代码"可降低同步成本
 - **API_KEY 硬编码进教学仓库**：教学仓库若公开，需把 `config.py` 的 API_KEY 改为占位符 `"sk-YOUR_KEY_HERE"`，并在 01 文档说明学习者需自行填入

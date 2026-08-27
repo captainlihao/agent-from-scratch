@@ -1,4 +1,4 @@
-"""Smoke test for mini_agent v0.1.
+"""Smoke test for mini_agent v0.01.
 
 验证 import 链路和函数签名，不实际调用 LLM（避免依赖网络）。
 可独立运行：python tests/test_loop.py

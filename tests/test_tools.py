@@ -1,4 +1,4 @@
-"""Smoke test for mini_agent v0.8 tools.
+"""Smoke test for mini_agent v0.08 tools.
 
 验证 Tool/ToolRegistry/ToolExecutor + calculate/read_file/write_file/edit_file/list_dir/grep + 权限闸门。
 可独立运行：python tests/test_tools.py

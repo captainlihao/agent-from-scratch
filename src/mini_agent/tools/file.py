@@ -1,7 +1,7 @@
 """文件操作工具：read_file / write_file / edit_file / list_dir / grep。
 
-v0.3：read_file / write_file
-v0.8：read_file 加 offset/limit + 新增 edit_file / list_dir / grep
+v0.03：read_file / write_file
+v0.08：read_file 加 offset/limit + 新增 edit_file / list_dir / grep
 """
 
 import fnmatch

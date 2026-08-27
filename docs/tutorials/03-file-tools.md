@@ -1,6 +1,6 @@
 # 第 3 课：文件读写工具
 
-> 版本 v0.3 | [上一课](02-first-tool.md) | [下一课](04-permission-gate.md)
+> 版本 v0.03 | [上一课](02-first-tool.md) | [下一课](04-permission-gate.md)
 
 ## 本课目标
 
@@ -10,7 +10,7 @@
 ## 前置
 
 - 已读 [第 2 课](02-first-tool.md)，理解 Tool 三件套和 function calling 协议
-- `git checkout v0.3` 切到本版代码
+- `git checkout v0.03` 切到本版代码
 
 ## 新增/改动了什么
 
@@ -70,11 +70,11 @@ registry.register(read_file_tool)    # ← 新增
 registry.register(write_file_tool)   # ← 新增
 ```
 
-加工具只需：写 handler → 包成 Tool → 注册。**不动 agent.py，不动 loop 逻辑**。这是 v0.2 三件套分离关注点的好处。
+加工具只需：写 handler → 包成 Tool → 注册。**不动 agent.py，不动 loop 逻辑**。这是 v0.02 三件套分离关注点的好处。
 
 ### 多步工具串联
 
-v0.3 最有意思的现象是 LLM 会**自动串联多个工具**。让它"读取 examples/input.txt 并计算"：
+v0.03 最有意思的现象是 LLM 会**自动串联多个工具**。让它"读取 examples/input.txt 并计算"：
 
 ```
 === [1] LLM 回复 ===
@@ -95,11 +95,11 @@ v0.3 最有意思的现象是 LLM 会**自动串联多个工具**。让它"读�
 
 ### 为什么 write_file 直接执行不问人
 
-v0.3 的 `write_file` 是**无权限**的——LLM 说写就写。这有风险（可能覆盖重要文件），但 v0.3 故意不加权限，原因有二：
-1. 先让"能写文件"这个能力跑通，权限是独立概念，v0.4 专门讲。
+v0.03 的 `write_file` 是**无权限**的——LLM 说写就写。这有风险（可能覆盖重要文件），但 v0.03 故意不加权限，原因有二：
+1. 先让"能写文件"这个能力跑通，权限是独立概念，v0.04 专门讲。
 2. 教学顺序：能力 → 安全。先有能力再加约束，比一开始就加约束更易理解。
 
-v0.4 会引入 `permission.py`，把 `write_file` 改成 ASK（每次问用户）。
+v0.04 会引入 `permission.py`，把 `write_file` 改成 ASK（每次问用户）。
 
 ### 为什么用 `"w"` 模式而非 `"a"`
 
@@ -149,7 +149,7 @@ $env:PYTHONPATH="src"; python -m mini_agent "读取 examples/input.txt，把内�
 ### 本版独有特性
 
 - **多步工具串联**：LLM 能在一轮对话里串联多个工具（读 → 算 → 答），每步结果回灌后 LLM 自行决定下一步。
-- **副作用工具**：write_file 会改文件系统。v0.3 无权限保护，LLM 说写就写——观察这个"危险"行为，理解 v0.4 为什么需要权限闸门。
+- **副作用工具**：write_file 会改文件系统。v0.03 无权限保护，LLM 说写就写——观察这个"危险"行为，理解 v0.04 为什么需要权限闸门。
 - **相对路径约定**：工具的相对路径从项目根目录 `mini_agent/` 起算。必须在 `mini_agent/` 目录下运行。
 
 ## 动手验证

@@ -1,6 +1,6 @@
 """权限策略：tool 执行前的三态闸门（allow/deny/ask）。
 
-v0.9 版：从一维 (tool_name -> action) 升级为二维 (tool_name, pattern) -> action。
+v0.09 版：从一维 (tool_name -> action) 升级为二维 (tool_name, pattern) -> action。
 - 规则内部存扁平 list[dict]（Rule 三元组：permission + pattern + action）
 - 构造函数兼容旧版简单 dict 格式（{"write_file": "ask"}）和新版复杂格式（{"run_shell": {"git *": "allow"}}）
 - check() 用 fnmatch 做 wildcard 匹配，findLast 取最后匹配（后出现优先级更高）

@@ -62,7 +62,7 @@ python -m mini_agent
 
 ## 3. 当前能力（v0.10）
 
-v0.10 新增 `run_shell` 工具，agent 能跑命令（跑测试、跑脚本）。v0.9 的二维权限系统为 `run_shell` 提供命令模式权限控制。v0.8 的文件操作能力和 v0.7 的系统提示词工程化仍然生效。
+v0.10 新增 `run_shell` 工具，agent 能跑命令（跑测试、跑脚本）。v0.09 的二维权限系统为 `run_shell` 提供命令模式权限控制。v0.08 的文件操作能力和 v0.07 的系统提示词工程化仍然生效。
 
 ### 3.1 System Prompt
 
@@ -93,7 +93,7 @@ $env:PYTHONPATH="src"; python -c "from mini_agent.prompt import build_system_pro
 
 ### 3.3 权限交互
 
-v0.9 权限系统升级为二维匹配：`(tool_name, pattern) -> action`。`PermissionGate` 从工具参数中提取 pattern（文件工具提取 `path`，`run_shell` 提取 `command`，其他返回 `*`），用 `fnmatch` 做 wildcard 匹配。
+v0.09 权限系统升级为二维匹配：`(tool_name, pattern) -> action`。`PermissionGate` 从工具参数中提取 pattern（文件工具提取 `path`，`run_shell` 提取 `command`，其他返回 `*`），用 `fnmatch` 做 wildcard 匹配。
 
 **规则格式**（`permission.py` 的 `PERMISSION_RULES`）：
 

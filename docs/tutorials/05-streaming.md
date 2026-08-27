@@ -1,6 +1,6 @@
 # 第 5 课：流式输出
 
-> 版本 v0.5 | [上一课](04-permission-gate.md) | [下一课](06-concurrent-tool-calls.md)
+> 版本 v0.05 | [上一课](04-permission-gate.md) | [下一课](06-concurrent-tool-calls.md)
 
 ## 本课目标
 
@@ -10,7 +10,7 @@
 ## 前置
 
 - 已读 [第 4 课](04-permission-gate.md)，理解权限闸门
-- `git checkout v0.5` 切到本版代码
+- `git checkout v0.05` 切到本版代码
 
 ## 新增/改动了什么
 
@@ -25,10 +25,10 @@
 
 ### 非流式 vs 流式
 
-**v0.4 非流式**：LLM 生成完整回复后一次性返回 JSON，`call_llm` 解析后返回 message。
+**v0.04 非流式**：LLM 生成完整回复后一次性返回 JSON，`call_llm` 解析后返回 message。
 终端等到 LLM 全部想完才看到回复——长回复时有明显等待。
 
-**v0.5 流式**：LLM 边生成边发 chunk（Server-Sent Events），每个 chunk 含一小段 content。
+**v0.05 流式**：LLM 边生成边发 chunk（Server-Sent Events），每个 chunk 含一小段 content。
 `call_llm` 逐 chunk 读取、拼接、实时打印——终端逐字出现，体感更快。
 
 ### SSE 协议（Server-Sent Events）
@@ -142,8 +142,8 @@ content 是文本，逐字打印有意义。tool_calls 是结构化数据（工�
 
 ### 为什么 agent_loop 里 print 标记移到 call_llm 之前
 
-v0.4 的 `agent_loop` 是先调 `call_llm` 再打印 `=== [N] LLM 回复 ===`。
-v0.5 改成先打印标记再调 `call_llm`——因为 content 在 `call_llm` 里就流式打印了，
+v0.04 的 `agent_loop` 是先调 `call_llm` 再打印 `=== [N] LLM 回复 ===`。
+v0.05 改成先打印标记再调 `call_llm`——因为 content 在 `call_llm` 里就流式打印了，
 如果标记在后面，终端会先看到回复内容再看到标记，顺序就乱了。
 
 ## 使用指导
@@ -169,7 +169,7 @@ $env:PYTHONPATH="src"; python -m mini_agent "用一句话介绍你自己"
 ```
 预期：终端逐字出现 LLM 的回复，而不是等几秒后一次性弹出。
 注意：回复会打印两遍——第一遍是 `call_llm` 里流式打印，第二遍是 `__main__.py` 里 `print(reply)`。
-这是 v0.5 的已知小瑕疵（后续版本会优化 `__main__.py` 不重复打印）。
+这是 v0.05 的已知小瑕疵（后续版本会优化 `__main__.py` 不重复打印）。
 
 **示例 2：流式 + 工具调用**
 ```bash
@@ -190,18 +190,18 @@ $env:PYTHONPATH="src"; python -m mini_agent "计算 123 * 456"
 
 **示例 3：长回复体感对比**
 ```bash
-# v0.4（非流式）：等 3-5 秒后一次性弹出
-git checkout v0.4
+# v0.04（非流式）：等 3-5 秒后一次性弹出
+git checkout v0.04
 $env:PYTHONPATH="src"; python -m mini_agent "详细介绍 Python 的历史"
 
-# v0.5（流式）：立刻开始逐字出现
-git checkout v0.5
+# v0.05（流式）：立刻开始逐字出现
+git checkout v0.05
 $env:PYTHONPATH="src"; python -m mini_agent "详细介绍 Python 的历史"
 ```
 
 ### 本版独有特性
 
-- **打字机效果**：终端逐字出现 LLM 回复，这是 v0.5 最明显的体感变化。
+- **打字机效果**：终端逐字出现 LLM 回复，这是 v0.05 最明显的体感变化。
 - **SSE 解析**：`call_llm` 里逐行读取 `data:` 事件，解析 JSON chunk。
 - **tool_calls 跨 chunk 拼接**：`arguments` 字符串分片到达，用 `+=` 拼接，`index` 聚合。
 - **回复打印两遍**：`call_llm` 流式打印 + `__main__.py` 的 `print(reply)`，已知小瑕疵。
@@ -220,13 +220,13 @@ $env:PYTHONPATH="src"; python -m mini_agent "详细介绍 Python 的历史"
    ```
    预期：终端逐字出现回复。
 
-3. **对比 v0.4 vs v0.5**：
+3. **对比 v0.04 vs v0.05**：
    ```bash
-   git checkout v0.4
+   git checkout v0.04
    $env:PYTHONPATH="src"; python -m mini_agent "详细介绍 Python 的历史"
    # 感受：等几秒后一次性弹出
 
-   git checkout v0.5
+   git checkout v0.05
    $env:PYTHONPATH="src"; python -m mini_agent "详细介绍 Python 的历史"
    # 感受：立刻开始逐字出现
    ```

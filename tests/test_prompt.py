@@ -1,4 +1,4 @@
-"""Smoke test for mini_agent v0.7 system prompt.
+"""Smoke test for mini_agent v0.07 system prompt.
 
 验证 prompt.py 的分层组装：header / core_rules / environment。
 可独立运行：python tests/test_prompt.py

@@ -1,6 +1,6 @@
 # 第 2 课：第一个工具
 
-> 版本 v0.2 | [上一课](01-minimal-loop.md) | [下一课](03-file-tools.md)
+> 版本 v0.02 | [上一课](01-minimal-loop.md) | [下一课](03-file-tools.md)
 
 ## 本课目标
 
@@ -10,7 +10,7 @@
 ## 前置
 
 - 已读 [第 1 课](01-minimal-loop.md)，理解 agent loop 的循环结构
-- `git checkout v0.2` 切到本版代码
+- `git checkout v0.02` 切到本版代码
 
 ## 新增/改动了什么
 
@@ -45,7 +45,7 @@ class Tool:
 
 **ToolRegistry**（`base.py:45`）——注册中心，负责注册/查找/列举工具，生成给 LLM 的 schemas 列表。
 
-**ToolExecutor**（`base.py:82`）——执行器，拿到工具名 + 参数，调 handler，捕获异常返回错误信息。v0.2 版无权限闸门（v0.4 才加）。
+**ToolExecutor**（`base.py:82`）——执行器，拿到工具名 + 参数，调 handler，捕获异常返回错误信息。v0.02 版无权限闸门（v0.04 才加）。
 
 ### calculate 工具（`src/mini_agent/tools/calc.py`）
 
@@ -60,7 +60,7 @@ def calculate(expression: str):
 
 ### function calling 协议
 
-v0.1 的 `call_llm` 只发 `model` + `messages`。v0.2 加了 `tools` 参数：
+v0.01 的 `call_llm` 只发 `model` + `messages`。v0.02 加了 `tools` 参数：
 
 ```python
 body = json.dumps({
@@ -89,7 +89,7 @@ LLM 收到 `tools` 后，回复里可能带 `tool_calls`：
 
 ### agent_loop 的 tool_calls 分支（`src/mini_agent/agent.py:55`）
 
-v0.1 的 loop 只判断"无 tool_calls 就结束"。v0.2 补上了"有 tool_calls"分支：
+v0.01 的 loop 只判断"无 tool_calls 就结束"。v0.02 补上了"有 tool_calls"分支：
 
 ```python
 if not msg.get("tool_calls"):
@@ -119,11 +119,11 @@ for tc in msg["tool_calls"]:
 
 ### 为什么 Executor 捕获异常而不是让 loop 崩
 
-v0.1 的约束是"loop 不兜底"。但工具层不同：工具失败是可预期的（文件不存在、表达式非法），应该把错误信息返回给 LLM，让 LLM 决定下一步（换个参数重试或告诉用户）。所以 `ToolExecutor.execute` 里有 try/except，但这不违反"loop 不兜底"——容错在工具层，不在 loop 层。
+v0.01 的约束是"loop 不兜底"。但工具层不同：工具失败是可预期的（文件不存在、表达式非法），应该把错误信息返回给 LLM，让 LLM 决定下一步（换个参数重试或告诉用户）。所以 `ToolExecutor.execute` 里有 try/except，但这不违反"loop 不兜底"——容错在工具层，不在 loop 层。
 
 ### 为什么 tool_calls 串行执行
 
-v0.2 串行执行同一轮的多个 tool_calls。v0.6 才改成 `ThreadPoolExecutor` 并发。先串行是为了让逻辑清晰——看 v0.2 的 loop 能一眼读懂"取 tool_call → 执行 → 回灌"。
+v0.02 串行执行同一轮的多个 tool_calls。v0.06 才改成 `ThreadPoolExecutor` 并发。先串行是为了让逻辑清晰——看 v0.02 的 loop 能一眼读懂"取 tool_call → 执行 → 回灌"。
 
 ## 使用指导
 
@@ -175,7 +175,7 @@ $env:PYTHONPATH="src"; python -m mini_agent "计算 (100 + 200) * 3 / 5"
 
 - **观察 role=tool 回灌**：看终端日志，第 1 轮 LLM 返回 `tool_calls`，执行后结果作为 `role=tool` 消息回灌，第 2 轮 LLM 才给出最终文本回复。
 - **content 为 null**：LLM 只返回 tool_calls 时，`content` 字段可能是 `null`，agent.py 里用 `if msg.get("content")` 判空跳过打印。
-- **无权限交互**：v0.2 所有工具直接执行，不问用户（v0.4 才加权限闸门）。
+- **无权限交互**：v0.02 所有工具直接执行，不问用户（v0.04 才加权限闸门）。
 
 ## 动手验证
 

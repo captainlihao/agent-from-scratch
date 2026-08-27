@@ -1,6 +1,6 @@
 # 第 8 课：文件操作补全
 
-> 版本 v0.8 | [上一课](07-system-prompt.md) | [下一课](09-shell-execution.md)
+> 版本 v0.08 | [上一课](07-system-prompt.md) | [下一课](09-shell-execution.md)
 
 ## 本课目标
 
@@ -9,7 +9,7 @@
 ## 前置
 
 - 已读 [第 7 课](07-system-prompt.md)，理解系统提示词工程化
-- `git checkout v0.8` 切到本版代码
+- `git checkout v0.08` 切到本版代码
 
 ## 新增/改动了什么
 
@@ -25,23 +25,23 @@
  └── test_tools.py      # 改：加 6 个新测试，共 15 个
 ```
 
-> 本版只改 `file.py` + `permission.py` + `__init__.py` + 测试。`agent.py` 不动——核心 loop 仍然只认 `messages` 列表，不感知工具数量变化。这是 v0.2 三件套分离关注点的持续红利。
+> 本版只改 `file.py` + `permission.py` + `__init__.py` + 测试。`agent.py` 不动——核心 loop 仍然只认 `messages` 列表，不感知工具数量变化。这是 v0.02 三件套分离关注点的持续红利。
 
 ## 核心概念
 
-### 为什么 v0.3 的三个工具不够
+### 为什么 v0.03 的三个工具不够
 
-v0.3 给了 `read_file`/`write_file`，agent 能读写文件，但实际编程任务还差三块：
+v0.03 给了 `read_file`/`write_file`，agent 能读写文件，但实际编程任务还差三块：
 
 1. **看不到目录结构**：agent 不知道项目里有哪些文件，只能靠用户告诉它路径。需要 `list_dir`。
 2. **改文件只能整文件重写**：改一行代码也要 `write_file` 重写整个文件，大文件浪费 token、容易丢内容。需要 `edit_file` 做局部替换。
 3. **找不到内容在哪**：agent 想改某个函数，但不知道在哪个文件。需要 `grep` 搜索内容定位文件。
 
-v0.8 补齐这三块，加上 `read_file` 的分段读取，形成完整操作链路。
+v0.08 补齐这三块，加上 `read_file` 的分段读取，形成完整操作链路。
 
 ### read_file 加 offset/limit（`src/mini_agent/tools/file.py`）
 
-v0.3 的 `read_file` 一次读全量，大文件会爆上下文。v0.8 加 `offset`/`limit`：
+v0.03 的 `read_file` 一次读全量，大文件会爆上下文。v0.08 加 `offset`/`limit`：
 
 ```python
 def read_file(path: str, offset: int = 0, limit: int = 2000):
@@ -129,7 +129,7 @@ PERMISSION_RULES = {
 }
 ```
 
-只读工具（`list_dir`/`grep`）放行，写操作（`edit_file`）走 ASK，与 v0.4 的策略一致：能力越强，越要管住副作用。
+只读工具（`list_dir`/`grep`）放行，写操作（`edit_file`）走 ASK，与 v0.04 的策略一致：能力越强，越要管住副作用。
 
 ## 为什么这样设计
 
@@ -143,11 +143,11 @@ OpenCode 的 EditTool 有 8 种匹配策略（精确、行首尾空白忽略、�
 
 ### 为什么 grep 不用 ripgrep
 
-OpenCode 的 GrepTool 用 ripgrep（外部二进制）。mini_agent 约定零第三方依赖，用 `re` + `os.walk` + `fnmatch` 实现。性能差很多（ripgrep 用 Rust 并行+内存映射），但教学场景文件量小，够用。v0.9 加 `run_shell` 后，LLM 可以自己调 `rg` 命令获得高性能搜索。
+OpenCode 的 GrepTool 用 ripgrep（外部二进制）。mini_agent 约定零第三方依赖，用 `re` + `os.walk` + `fnmatch` 实现。性能差很多（ripgrep 用 Rust 并行+内存映射），但教学场景文件量小，够用。v0.09 加 `run_shell` 后，LLM 可以自己调 `rg` 命令获得高性能搜索。
 
 ### 为什么 read_file 要加行号前缀
 
-v0.3 的 `read_file` 输出纯文本，LLM 不知道每行行号。v0.8 加 `00001| ` 前缀后，LLM 调 `edit_file` 时能更准确地选择 `old_string`（知道选哪几行），减少多匹配误报。这是 `read_file` 和 `edit_file` 的协同设计。
+v0.03 的 `read_file` 输出纯文本，LLM 不知道每行行号。v0.08 加 `00001| ` 前缀后，LLM 调 `edit_file` 时能更准确地选择 `old_string`（知道选哪几行），减少多匹配误报。这是 `read_file` 和 `edit_file` 的协同设计。
 
 ## 使用指导
 

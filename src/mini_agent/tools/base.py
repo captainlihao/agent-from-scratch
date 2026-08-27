@@ -1,6 +1,6 @@
 """Tool 定义、注册中心、执行器。
 
-v0.4 版：ToolExecutor 加权限闸门（PermissionGate）。
+v0.04 版：ToolExecutor 加权限闸门（PermissionGate）。
 Executor 先过闸门再调 handler，异常捕获返回错误信息给 LLM。
 """
 

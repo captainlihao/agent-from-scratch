@@ -1,6 +1,6 @@
 # 第 7 课：系统提示词工程化
 
-> 版本 v0.7 | [上一课](06-concurrent-tool-calls.md) | [下一课](08-file-operations.md)
+> 版本 v0.07 | [上一课](06-concurrent-tool-calls.md) | [下一课](08-file-operations.md)
 
 ## 本课目标
 
@@ -9,7 +9,7 @@
 ## 前置
 
 - 已读 [第 6 课](06-concurrent-tool-calls.md)，理解并发 tool_calls
-- `git checkout v0.7` 切到本版代码
+- `git checkout v0.07` 切到本版代码
 
 ## 新增/改动了什么
 
@@ -27,7 +27,7 @@ tests/
 
 ### 为什么一行 system prompt 不够
 
-v0.6 的 system prompt 是这样的（`__main__.py:11`）：
+v0.06 的 system prompt 是这样的（`__main__.py:11`）：
 
 ```python
 messages = [{"role": "system", "content": "你是一个助手，通过调用工具完成任务。"}]
@@ -48,7 +48,7 @@ OpenCode 的 system prompt 分四层：`header`（身份）+ `provider`（按模
 | `header()` 身份层 | `header(agent_name)` | ✅ | 为多 agent 预留参数，当前只有 `build` |
 | `provider()` 行为层 | `_CORE_RULES` 静态文本 | ✅ | 单模型不需要按 provider 分模板 |
 | `environment()` 环境层 | `environment()` 动态生成 | ✅ | 纯标准库即可，投入产出比最高 |
-| `custom()` 用户规则 | — | ❌ | 留 v0.8 文件工具补全后 |
+| `custom()` 用户规则 | — | ❌ | 留 v0.08 文件工具补全后 |
 
 ### 三层结构（`src/mini_agent/prompt.py`）
 
@@ -74,7 +74,7 @@ def header(agent_name: str = "build") -> str:
             "后续会扩展到跑命令、跑测试。"
             "你的目标是独立完成基础的编程任务，不只是聊天。"
         ),
-        # 预留，v0.7 不实现：
+        # 预留，v0.07 不实现：
         # "explore": "你是 mini_agent 的 explore 子 agent，只负责只读探索代码库...",
         # "plan": "你是 mini_agent 的 plan agent，只负责规划不执行...",
     }
@@ -201,17 +201,17 @@ $env:PYTHONPATH="src"; python -c "from mini_agent.prompt import build_system_pro
 ```
 预期输出：三段文本——身份描述 + `<rules>` 行为规范 + `<env>` 环境信息。
 
-**示例 2：对比 v0.6 vs v0.7 的模型自我介绍**
+**示例 2：对比 v0.06 vs v0.07 的模型自我介绍**
 ```bash
-# v0.6：一行 prompt，模型可能啰嗦或加 emoji
-git checkout v0.6
+# v0.06：一行 prompt，模型可能啰嗦或加 emoji
+git checkout v0.06
 $env:PYTHONPATH="src"; python -m mini_agent "你好，简单介绍下自己"
 
-# v0.7：规范 prompt，模型简洁、无 emoji、Markdown 格式
-git checkout v0.7
+# v0.07：规范 prompt，模型简洁、无 emoji、Markdown 格式
+git checkout v0.07
 $env:PYTHONPATH="src"; python -m mini_agent "你好，简单介绍下自己"
 ```
-预期：v0.7 的回复更简洁、结构化、无 emoji，自报身份为 mini_agent。
+预期：v0.07 的回复更简洁、结构化、无 emoji，自报身份为 mini_agent。
 
 **示例 3：环境信息帮助路径解析**
 ```bash
@@ -239,15 +239,15 @@ $env:PYTHONPATH="src"; python -m mini_agent "读取 examples/input.txt 并告诉
    ```
    预期：输出含 `mini_agent`、`<rules>`、`<env>` 三段。
 
-3. **对比 v0.6 vs v0.7 行为**：
+3. **对比 v0.06 vs v0.07 行为**：
    ```bash
-   git checkout v0.6
+   git checkout v0.06
    $env:PYTHONPATH="src"; python -m mini_agent "你好"
-   # v0.6：可能啰嗦、加 emoji、不报身份
+   # v0.06：可能啰嗦、加 emoji、不报身份
 
-   git checkout v0.7
+   git checkout v0.07
    $env:PYTHONPATH="src"; python -m mini_agent "你好"
-   # v0.7：简洁、Markdown、自报 mini_agent 身份
+   # v0.07：简洁、Markdown、自报 mini_agent 身份
    ```
 
 ## 本版完整代码

@@ -4,22 +4,22 @@
 
 ## 学习顺序
 
-`v0.1 → v0.2 → ... → v0.X`（持续迭代，不设上限），每版配套一份文档，每版只引入一个新概念。
+`v0.01 → v0.02 → ... → v0.X`（持续迭代，不设上限），每版配套一份文档，每版只引入一个新概念。
 
 | 版本 | 主题 | 文档 |
 |---|---|---|
-| v0.1 | 最简 agent loop | [01-minimal-loop.md](01-minimal-loop.md) |
-| v0.2 | 第一个工具 | [02-first-tool.md](02-first-tool.md) |
-| v0.3 | 文件读写工具 | [03-file-tools.md](03-file-tools.md) |
-| v0.4 | 权限闸门 | [04-permission-gate.md](04-permission-gate.md) |
-| v0.5 | 流式输出 | [05-streaming.md](05-streaming.md) |
-| v0.6 | 并发 tool_calls | [06-concurrent-tool-calls.md](06-concurrent-tool-calls.md) |
-| v0.7 | 系统提示词工程化 | [07-system-prompt.md](07-system-prompt.md) |
-| v0.8 | 文件操作补全 | [08-file-operations.md](08-file-operations.md) |
-| v0.9 | 权限系统升级 | [09-permission-upgrade.md](09-permission-upgrade.md) |
+| v0.01 | 最简 agent loop | [01-minimal-loop.md](01-minimal-loop.md) |
+| v0.02 | 第一个工具 | [02-first-tool.md](02-first-tool.md) |
+| v0.03 | 文件读写工具 | [03-file-tools.md](03-file-tools.md) |
+| v0.04 | 权限闸门 | [04-permission-gate.md](04-permission-gate.md) |
+| v0.05 | 流式输出 | [05-streaming.md](05-streaming.md) |
+| v0.06 | 并发 tool_calls | [06-concurrent-tool-calls.md](06-concurrent-tool-calls.md) |
+| v0.07 | 系统提示词工程化 | [07-system-prompt.md](07-system-prompt.md) |
+| v0.08 | 文件操作补全 | [08-file-operations.md](08-file-operations.md) |
+| v0.09 | 权限系统升级 | [09-permission-upgrade.md](09-permission-upgrade.md) |
 | v0.10 | shell 执行 | [10-shell-execution.md](10-shell-execution.md) |
-| v0.11 | 上下文管理 | 11-context-management.md（待落地） |
-| v0.12 | plan 引导 | 12-plan-guidance.md（待落地） |
+| v0.011 | 上下文管理 | 11-context-management.md（待落地） |
+| v0.012 | plan 引导 | 12-plan-guidance.md（待落地） |
 | ... | ... | ...（按需追加） |
 
 ## 环境准备（一次性）
@@ -39,10 +39,10 @@
 
 ```bash
 git tag                    # 看所有版本
-git checkout v0.1          # 切到第一版
+git checkout v0.01          # 切到第一版
 # 读 01-minimal-loop.md
 # 跑"使用指导"里的命令
-git checkout v0.2          # 看差异，读 02-first-tool.md
+git checkout v0.02          # 看差异，读 02-first-tool.md
 # ...依次到最新版
 ```
 
