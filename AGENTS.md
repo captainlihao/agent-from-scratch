@@ -24,7 +24,7 @@ mini_agent/
 │   ├── __init__.py         # 包入口
 │   ├── __main__.py         # CLI 入口：python -m mini_agent
 │   ├── agent.py            # agent loop：call_llm + agent_loop（带 tools 参数）
-│   ├── config.py           # BASE_URL/API_KEY/MODEL/MAX_ITERATIONS（硬编码）
+│   ├── config.py           # 配置占位 + 自动加载 config_local.py（本地真实配置，不进 git）
 │   ├── permission.py       # 权限闸门：allow/deny/ask 三态
 │   └── tools/
 │       ├── __init__.py     # registry + executor 实例
@@ -87,7 +87,7 @@ python -m mini_agent
 ## 关键约束（踩坑备忘，勿违反）
 
 - **必须用 `http.client`，不能用 `requests`/`urllib`**：`your-gateway-host` 网关对 `Accept-Encoding: gzip` 响应异常返回 502。`call_llm` 里显式设 `Accept-Encoding: identity` 绕过。换 HTTP 客户端会重新踩坑。
-- 配置（`BASE_URL`/`API_KEY`/`MODEL`）硬编码在 `config.py`，不从环境变量读。
+- 配置（`BASE_URL`/`API_KEY`/`MODEL`）写在 `config_local.py`（不进 git），由 `config.py` 自动 `import *` 加载；无 `config_local.py` 时回退到 `config.py` 里的占位值。
 - agent loop 无 try/except 兜底，工具失败会直接抛异常终止——这是有意为之，保持核心逻辑清晰。
 - 迭代上限 `MAX_ITERATIONS = 10`（硬编码）。超限直接返回 `"达到最大迭代次数"`，不报错——长任务可能静默截断。
 

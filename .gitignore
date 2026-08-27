@@ -10,3 +10,6 @@ venv/
 !examples/*.txt
 !doc/*.txt
 !requirements*.txt
+
+# 本地真实配置（不进 git）
+src/mini_agent/config_local.py

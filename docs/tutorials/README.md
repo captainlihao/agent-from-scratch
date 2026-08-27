@@ -27,7 +27,7 @@
    git clone <repo>
    cd mini_agent
    ```
-3. **配置 LLM 网关**：编辑 `src/mini_agent/config.py`，填入你的 `BASE_URL`/`API_KEY`/`MODEL`
+3. **配置 LLM 网关**：复制 `src/mini_agent/config_example.py` 为 `src/mini_agent/config_local.py`，填入你的 `BASE_URL`/`API_KEY`/`MODEL`（`config_local.py` 不进 git，由 `config.py` 自动加载）
 4. **选择运行方式**：
    - 开发模式（推荐）：`pip install -e .`
    - 免安装：`$env:PYTHONPATH="src"` (PowerShell) / `PYTHONPATH=src` (bash)

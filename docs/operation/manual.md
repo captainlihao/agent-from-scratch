@@ -29,16 +29,18 @@ PYTHONPATH=src python -m mini_agent
 ```
 
 ### 1.3 配置
-配置硬编码在 `src/mini_agent/config.py`，修改后重启生效：
+配置分两层：`config.py`（占位模板，进 git）+ `config_local.py`（真实配置，不进 git）。
 
-| 配置项 | 默认值 | 说明 |
+首次使用：复制 `src/mini_agent/config_example.py` 为 `src/mini_agent/config_local.py`，填入真实值。`config.py` 会自动 `import *` 加载 `config_local.py` 覆盖占位值。
+
+| 配置项 | 占位值 | 说明 |
 |---|---|---|
 | `BASE_URL` | `http://your-gateway-host/v3/openai/model` | LLM 网关地址 |
-| `API_KEY` | `sk-...` | 网关密钥 |
+| `API_KEY` | `sk-YOUR_API_KEY_HERE` | 网关密钥 |
 | `MODEL` | `EB-GLM-5.2` | 模型名 |
 | `MAX_ITERATIONS` | `10` | agent loop 最大轮数 |
 
-> 当前不从环境变量读，改配置直接编辑 `config.py`。
+> 真实配置写进 `config_local.py`（不进 git）；无 `config_local.py` 时回退到 `config.py` 占位值。
 
 ---
 
@@ -115,11 +117,11 @@ python -c "from mini_agent.tools import registry; print([t.name for t in registr
 ## 5. 常见问题
 
 ### Q1：运行报 502 / 连接网关失败
-确认 `config.py` 的 `BASE_URL` 和 `API_KEY` 正确，且网络可达 `your-gateway-host`。
+确认 `config_local.py` 的 `BASE_URL` 和 `API_KEY` 正确，且网络可达 `your-gateway-host`。
 > 注意：必须用 `http.client`（代码已如此），不能用 requests/urllib——网关对 `Accept-Encoding: gzip` 响应异常。`call_llm` 已显式设 `Accept-Encoding: identity` 绕过。
 
 ### Q2：任务没完成就停了
-可能触发 `MAX_ITERATIONS=10` 上限，agent 返回 `"达到最大迭代次数"`。改 `config.py` 调高即可，但注意长对话会累积上下文。
+可能触发 `MAX_ITERATIONS=10` 上限，agent 返回 `"达到最大迭代次数"`。改 `config_local.py` 调高即可，但注意长对话会累积上下文。
 
 ### Q3：工具失败直接报错退出
 这是有意为之——agent loop 不加 try/except 兜底，保持核心逻辑清晰。工具层（`ToolExecutor.execute`）会捕获 handler 异常并返回错误信息给 LLM，但 loop 本身的异常会向上抛。

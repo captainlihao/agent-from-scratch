@@ -1,0 +1,133 @@
+<div align="center">
+
+# mini_agent
+
+### A coding agent that grows step by step · Build a working AI agent from scratch in 10 versions
+
+逐步生长的编程 Agent —— 用 10 个版本从零构建一个能干活的 AI Agent。
+
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Dependencies](https://img.shields.io/badge/dependencies-zero-green)](#)
+[![Versions](https://img.shields.io/badge/versions-10%20tags%20(v0.1→v1.0)-orange)](#learning-path)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey)](./LICENSE)
+
+**English** · **[中文](./README.md)**
+
+</div>
+
+---
+
+> **What this is**: A tutorial repo sliced by git tags. Starting from a minimal agent loop (v0.1, no tools, pure conversation), each version **introduces exactly one new concept**, growing all the way to a coding agent that can read/write files, run commands, and run tests (v1.0).
+>
+> **Who it's for**: Developers who want to understand how an LLM agent actually ticks. No frameworks, no LangChain — just the Python standard library, built from scratch.
+
+## Why learn agents with this repo
+
+- **Zero third-party dependencies** — Pure Python standard library throughout (`http.client` / `json` / `concurrent.futures`). No LangChain, no requests. Self-contained, every line is readable.
+- **10 version slices, one concept per version** — `git diff v0.1..v0.2` is the entire change for "add a tool". Diffs are readable, cognitive load is low.
+- **A real, runnable agent** — Not a toy demo: supports function calling, streaming output, a permission gate, concurrent tool calls. It can actually read/write files and run commands.
+- **Companion tutorials** — Each version ships a tutorial doc (`docs/tutorials/`) explaining *why* it's designed this way, not just pasting code.
+- **Progressive-growth philosophy** — Watch an agent project grow from 50 lines to production-ready, with every trade-off documented.
+
+## Quick Start
+
+```bash
+# 1. Clone
+git clone https://github.com/<your-user>/mini_agent.git
+cd mini_agent
+
+# 2. Configure the LLM gateway
+cp src/mini_agent/config_example.py src/mini_agent/config_local.py
+#    edit config_local.py with your BASE_URL / API_KEY / MODEL (this file is gitignored)
+
+# 3. Install (pick one)
+pip install -e .                 # dev mode, recommended
+$env:PYTHONPATH="src"           # no install, PowerShell; bash uses PYTHONPATH=src
+
+# 4. Run
+python -m mini_agent "calculate 123 * 456"
+python -m mini_agent             # or interactive input
+```
+
+> Requires Python 3.9+ (uses `dict[str, ...]` and other modern syntax).
+
+## Learning Path
+
+Checkout versions in order `v0.1 → v1.0`, each with a companion tutorial. **This is the core of the repo.**
+
+| Version | Topic | One new concept per version | Tutorial |
+|---|---|---|---|
+| **v0.1** | Minimal agent loop | `call_llm` + `agent_loop` (no tools) | [01-minimal-loop.md](./docs/tutorials/01-minimal-loop.md) |
+| **v0.2** | First tool | `Tool`/`ToolRegistry` + `calculate` + function calling | [02-first-tool.md](./docs/tutorials/02-first-tool.md) |
+| **v0.3** | File read/write tools | `read_file` / `write_file` | [03-file-tools.md](./docs/tutorials/03-file-tools.md) |
+| **v0.4** | Permission gate | `permission.py` (allow/deny/ask) | [04-permission-gate.md](./docs/tutorials/04-permission-gate.md) |
+| **v0.5** | Streaming output | streaming `call_llm` + typewriter effect | [05-streaming.md](./docs/tutorials/05-streaming.md) |
+| **v0.6** | Concurrent tool_calls | `ThreadPoolExecutor` concurrency | [06-concurrent-tool-calls.md](./docs/tutorials/06-concurrent-tool-calls.md) |
+| v0.7 | System prompt engineering | expand system prompt to full spec | _coming soon_ |
+| v0.8 | File operations complete | `list_dir` / `edit_file` / `grep` | _coming soon_ |
+| v0.9 | Shell execution | `run_shell` tool + whitelist perms | _coming soon_ |
+| v1.0 | Context management + planning | message trimming/summary + plan | _coming soon_ |
+
+**How to learn by version:**
+
+```bash
+git tag                    # list all versions
+git checkout v0.1          # switch to v0.1
+# read docs/tutorials/01-minimal-loop.md
+# run the commands in the tutorial
+git checkout v0.2          # see the diff: git diff v0.1..v0.2
+# read 02-first-tool.md ... continue to v1.0
+```
+
+## Project Structure
+
+```
+mini_agent/
+├── src/mini_agent/
+│   ├── agent.py            # agent loop: call_llm + agent_loop
+│   ├── config.py           # config placeholder + auto-loads config_local.py
+│   ├── config_example.py   # config template (copy to config_local.py)
+│   ├── permission.py       # permission gate: allow/deny/ask
+│   └── tools/
+│       ├── base.py         # Tool / ToolRegistry / ToolExecutor
+│       ├── calc.py         # calculate tool
+│       └── file.py         # read_file / write_file tools
+├── tests/                  # smoke tests
+├── docs/
+│   ├── tutorials/          # version-sliced tutorials (core)
+│   ├── plans/              # roadmap, feature plans
+│   ├── operation/          # runbook, usage guide
+│   └── governance/         # governance docs, decision records
+└── examples/               # example IO files
+```
+
+## Design Philosophy
+
+- **Progressive growth**: Add just enough capability each step, avoid over-engineering. New features are first recorded as intent in `AGENTS.md`, then implemented.
+- **Keep the core loop clear**: The agent loop has no try/except fallbacks — tool failures throw and halt. This is intentional, keeping the main path readable. Complex fault tolerance is introduced at the tool layer as needed.
+- **Zero dependencies**: Standard library only, staying self-contained and easy to deploy. Switching HTTP clients reintroduces a known pitfall (see `AGENTS.md` key constraints).
+
+## Documentation
+
+- [Tutorial path index](./docs/tutorials/README.md) — **start here**
+- [Full usage manual](./docs/operation/manual.md) — complete usage, config, FAQ for the latest version
+- [Roadmap & plans](./docs/plans/teaching-repo-plan.md) — version slicing plan
+- [AGENTS.md](./AGENTS.md) — project architecture & constraints memo
+
+## Contributing
+
+Issues and PRs welcome. For new version slices, please read `docs/plans/teaching-repo-plan.md` and `AGENTS.md` first, and follow the "one concept per version" slicing principle.
+
+## License
+
+MIT (LICENSE file to be added)
+
+---
+
+<div align="center">
+
+**If this repo helps you, please consider giving it a Star ⭐ so more people can find it.**
+
+</div>
+
+<!-- Keywords: agent tutorial, LLM agent, coding agent, Python agent, function calling, build agent from scratch, AI agent, agent loop, tool calling, agent 教程 -->
