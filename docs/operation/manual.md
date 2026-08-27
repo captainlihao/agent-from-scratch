@@ -1,6 +1,6 @@
 # mini_agent 操作手册
 
-> 本手册跟随最新版本更新。当前对应版本：**v0.7**（系统提示词工程化）。
+> 本手册跟随最新版本更新。当前对应版本：**v0.8**（文件操作补全）。
 
 ## 1. 环境准备
 
@@ -60,9 +60,9 @@ python -m mini_agent
 
 ---
 
-## 3. 当前能力（v0.7）
+## 3. 当前能力（v0.8）
 
-v0.7 引入了系统提示词工程化，模型在启动时获得分层组装的 system prompt（身份 + 行为规范 + 环境信息），行为更规范可控。
+v0.8 补全了文件操作能力，agent 具备"浏览→定位→读取→编辑"的完整文件操作链路。v0.7 的系统提示词工程化仍然生效。
 
 ### 3.1 System Prompt
 
@@ -84,17 +84,22 @@ $env:PYTHONPATH="src"; python -c "from mini_agent.prompt import build_system_pro
 | 工具 | 参数 | 权限 | 说明 |
 |---|---|---|---|
 | `calculate` | `expression: str` | allow | 计算数学表达式（仅数字与 `+-*/()` ） |
-| `read_file` | `path: str` | allow | 读取文本文件内容 |
-| `write_file` | `path: str, content: str` | **ASK** | 写文件，每次执行前问用户 |
+| `read_file` | `path: str, offset?: int, limit?: int` | allow | 读取文本文件，支持分段读取，输出带行号前缀 |
+| `write_file` | `path: str, content: str` | **ASK** | 写文件（完整覆盖），每次执行前问用户 |
+| `edit_file` | `path: str, old_string: str, new_string: str, replace_all?: bool` | **ASK** | 精确字符串替换，多匹配时需 replace_all 或更长上下文 |
+| `list_dir` | `path?: str` | allow | 列出目录内容，目录加 `/` 后缀，上限 200 条 |
+| `grep` | `pattern: str, path?: str, include?: str` | allow | 正则搜索文件内容，返回 `file:line: content`，上限 100 条 |
 
 ### 3.3 权限交互
-`write_file` 执行前会提示：
+`write_file`/`edit_file` 执行前会提示：
 ```
 允许执行 write_file({...})? [once/always/reject]
 ```
 - `once`：本次允许，下次再问
 - `always`：本轮运行内总是允许，不再问
 - 其他输入：拒绝执行，工具返回拒绝原因给 LLM
+
+> `edit_file` 同样走 ASK 权限，交互方式相同。
 
 ### 3.4 工具调用流程
 1. LLM 返回 `tool_calls`（一轮可含多个，代码用线程池并发执行）
@@ -120,13 +125,13 @@ $env:PYTHONPATH="src"; python tests/test_prompt.py   # system prompt
 $env:PYTHONPATH="src"; python tests/test_loop.py      # import 链路
 $env:PYTHONPATH="src"; python tests/test_tools.py     # 工具 + 权限
 ```
-覆盖：system prompt 分层组装、import 链路、registry 注册、calculate 正常/非法输入、读写文件、权限闸门。
+覆盖：system prompt 分层组装、import 链路、registry 注册、calculate 正常/非法输入、read_file 分段读取、读写文件、edit_file 精确替换/多匹配安全检查、list_dir、grep、权限闸门。
 
 ### 4.2 快速验证 import 链路
 ```bash
 $env:PYTHONPATH="src"
 python -c "from mini_agent.tools import registry; print([t.name for t in registry.list_tools()])"
-# 期望输出: ['calculate', 'read_file', 'write_file']
+# 期望输出: ['calculate', 'read_file', 'write_file', 'edit_file', 'list_dir', 'grep']
 ```
 
 ---

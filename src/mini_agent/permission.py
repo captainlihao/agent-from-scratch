@@ -15,7 +15,10 @@ ALLOW, DENY, ASK = "allow", "deny", "ask"
 PERMISSION_RULES = {
     "read_file": ALLOW,
     "calculate": ALLOW,
+    "list_dir": ALLOW,  # 只读，放行
+    "grep": ALLOW,  # 只读，放行
     "write_file": ASK,  # 有副作用，每次问一下
+    "edit_file": ASK,  # 有副作用，同 write_file
 }
 
 

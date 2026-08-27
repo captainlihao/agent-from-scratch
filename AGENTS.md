@@ -11,7 +11,7 @@
 - **渐进式生长**：每次只加刚好够用的能力，避免过度设计。新功能先在 `AGENTS.md` 记下意图，再落地代码。
 - **核心 loop 保持清晰**：agent loop 不加 try/except 兜底，工具失败直接抛异常——保持主路径可读。复杂容错按需在工具层或执行器层引入。
 
-## 当前架构（v0.6）
+## 当前架构（v0.8）
 
 标准 Python `src/` 包布局：
 
@@ -31,7 +31,7 @@ mini_agent/
 │       ├── __init__.py     # registry + executor 实例
 │       ├── base.py         # Tool / ToolRegistry / ToolExecutor
 │       ├── calc.py         # calculate 工具
-│       └── file.py         # read_file / write_file 工具
+│       └── file.py         # read_file / write_file / edit_file / list_dir / grep 工具
 ├── tests/
 │   ├── test_loop.py        # import 链路 smoke test
 │   ├── test_prompt.py      # system prompt smoke test
@@ -51,13 +51,15 @@ mini_agent/
         ├── 04-permission-gate.md
         ├── 05-streaming.md
         ├── 06-concurrent-tool-calls.md
-        └── 07-system-prompt.md
+        ├── 07-system-prompt.md
+        └── 08-file-operations.md
 ```
 
 - LLM 调用：`http.client` 流式，OpenAI function calling 协议（`tools` 参数）。
-- 工具：`calculate`、`read_file`、`write_file`。通过 `ToolRegistry` 注册，`ToolExecutor` 执行。
-- **v0.4 权限闸门**：`write_file` 走 ASK（每次问用户），`read_file`/`calculate` 走 ALLOW。`PermissionGate` 在 Executor 里拦截。
+- 工具：`calculate`、`read_file`（支持 offset/limit）、`write_file`、`edit_file`（精确替换）、`list_dir`、`grep`。通过 `ToolRegistry` 注册，`ToolExecutor` 执行。
+- **v0.4 权限闸门**：`write_file`/`edit_file` 走 ASK（每次问用户），`read_file`/`calculate`/`list_dir`/`grep` 走 ALLOW。`PermissionGate` 在 Executor 里拦截。
 - **v0.7 系统提示词工程化**：`prompt.py` 的 `build_system_prompt()` 分层组装 system prompt（header 身份 + core_rules 行为规范 + environment 环境信息），`__main__.py` 启动时调一次构造 `messages[0]`。为多 agent 预留 `agent_name` 参数。
+- **v0.8 文件操作补全**：`read_file` 加 `offset`/`limit` 分段读取 + 行号前缀；新增 `edit_file`（精确字符串替换，多匹配安全检查）、`list_dir`（目录列举，200 条上限）、`grep`（正则搜索，100 条上限，纯标准库 `re`+`os.walk`+`fnmatch`）。
 - 迭代上限 `MAX_ITERATIONS = 10`（硬编码，长任务可能静默截断，后续需调）。
 - 包未 pip install 时需 `PYTHONPATH=src`；`pip install -e .` 后可免。
 
@@ -72,7 +74,7 @@ mini_agent/
 - [x] **v0.5 流式输出**：`call_llm` 改流式 + chunk 拼接 + 打字机效果
 - [x] **v0.6 并发 tool_calls**：`ThreadPoolExecutor` 并发执行同一轮多个 tool_calls
 - [x] **v0.7 系统提示词工程化**：`prompt.py`（`build_system_prompt` 分层组装：header 身份 + core_rules 行为规范 + environment 环境信息）
-- [ ] **v0.8 文件操作补全**：`list_dir`、`edit_file`、`grep`
+- [x] **v0.8 文件操作补全**：`list_dir`、`edit_file`、`grep`
 - [ ] **v0.9 shell 执行**：`run_shell` 工具 + 白名单权限
 - [ ] **v1.0 上下文管理 + 规划**：message 裁剪/摘要 + `MAX_ITERATIONS` 调大 + plan 引导
 

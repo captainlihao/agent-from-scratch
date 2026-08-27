@@ -1,5 +1,24 @@
 # Changelog
 
+## [v0.8] - 文件操作补全
+
+### Added
+- `src/mini_agent/tools/file.py`：新增 `edit_file`（精确字符串替换，多匹配安全检查）、`list_dir`（目录列举，200 条上限）、`grep`（正则搜索，100 条上限，纯标准库 `re`+`os.walk`+`fnmatch`）
+- `docs/tutorials/08-file-operations.md`：第八课教学文档
+
+### Changed
+- `src/mini_agent/tools/file.py`：`read_file` 加 `offset`/`limit` 分段读取 + 行号前缀（`00001| `）+ 剩余行提示
+- `src/mini_agent/permission.py`：`list_dir`/`grep` 走 ALLOW，`edit_file` 走 ASK
+- `src/mini_agent/tools/__init__.py`：注册 6 个工具
+- `tests/test_tools.py`：从 8 个测试扩到 15 个（新增 read_file offset/limit、edit_file 单次/无匹配/多匹配、list_dir、grep 有匹配/无匹配）
+
+### Why
+- v0.3 只有 read_file/write_file，agent 看不到目录结构、改文件只能整文件重写、找不到内容在哪——补齐 list_dir/edit_file/grep 形成完整操作链路。
+- `edit_file` 用字符串匹配而非行号编辑：LLM 容易数错行号，从 read_file 输出复制原文更可靠。多匹配时报错而非静默替换第一处，防误改。
+- `read_file` 加 offset/limit：大文件不爆上下文；行号前缀帮 LLM 定位 edit_file 的 old_string。
+- `grep` 用纯标准库而非 ripgrep：零第三方依赖约定。性能差但教学场景够用，v0.9 加 run_shell 后 LLM 可自己调 rg。
+- 不做 OpenCode 的 8 种模糊匹配策略、输出临时文件、文件锁、LSP 集成——对教学项目过度设计。
+
 ## [v0.7] - 系统提示词工程化
 
 ### Added
