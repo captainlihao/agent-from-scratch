@@ -1,6 +1,6 @@
 # mini_agent 操作手册
 
-> 本手册跟随最新版本更新。当前对应版本：**v0.8**（文件操作补全）。
+> 本手册跟随最新版本更新。当前对应版本：**v0.9**（权限系统升级）。
 
 ## 1. 环境准备
 
@@ -60,9 +60,9 @@ python -m mini_agent
 
 ---
 
-## 3. 当前能力（v0.8）
+## 3. 当前能力（v0.9）
 
-v0.8 补全了文件操作能力，agent 具备"浏览→定位→读取→编辑"的完整文件操作链路。v0.7 的系统提示词工程化仍然生效。
+v0.9 升级了权限系统，从一维 `tool_name -> action` 升级为二维 `(tool_name, pattern) -> action`，支持按文件路径模式控制权限。v0.8 的文件操作能力和 v0.7 的系统提示词工程化仍然生效。
 
 ### 3.1 System Prompt
 
@@ -91,15 +91,33 @@ $env:PYTHONPATH="src"; python -c "from mini_agent.prompt import build_system_pro
 | `grep` | `pattern: str, path?: str, include?: str` | allow | 正则搜索文件内容，返回 `file:line: content`，上限 100 条 |
 
 ### 3.3 权限交互
+
+v0.9 权限系统升级为二维匹配：`(tool_name, pattern) -> action`。`PermissionGate` 从工具参数中提取 pattern（文件工具提取 `path`，`run_shell` 提取 `command`，其他返回 `*`），用 `fnmatch` 做 wildcard 匹配。
+
+**规则格式**（`permission.py` 的 `PERMISSION_RULES`）：
+
+```python
+# 简单格式（一维兼容，pattern 默认 "*"）
+{"write_file": "ask", "read_file": "allow"}
+
+# 复杂格式（二维，按 pattern 细控）
+{"read_file": {"*": "allow", "*.env": "deny", "*.env.example": "allow"}}
+```
+
+**匹配规则**：
+- `findLast` 语义：从后往前找第一个匹配的规则，后出现的优先级更高
+- 未匹配任何规则时默认 `ask`（安全优先）
+- `always` 回复时存 `(tool_name, pattern)` 到 approved，后续同类操作免问
+
 `write_file`/`edit_file` 执行前会提示：
 ```
 允许执行 write_file({...})? [once/always/reject]
 ```
 - `once`：本次允许，下次再问
-- `always`：本轮运行内总是允许，不再问
+- `always`：本轮运行内总是允许该 pattern，不再问
 - 其他输入：拒绝执行，工具返回拒绝原因给 LLM
 
-> `edit_file` 同样走 ASK 权限，交互方式相同。
+> 二维权限示例：配置 `{"read_file": {"*": "allow", "*.env": "deny"}}` 后，读取 `.env` 文件会被拒绝，其他文件正常放行。
 
 ### 3.4 工具调用流程
 1. LLM 返回 `tool_calls`（一轮可含多个，代码用线程池并发执行）

@@ -1,5 +1,24 @@
 # Changelog
 
+## [v0.9] - 权限系统升级
+
+### Changed
+- `src/mini_agent/permission.py`：从一维 `tool_name -> action` 升级为二维 `(tool_name, pattern) -> action`
+  - 规则内部存扁平 `list[dict]`（Rule 三元组：permission + pattern + action）
+  - `_from_config()` 兼容旧版简单 dict 格式（`{"write_file": "ask"}`）和新版复杂格式（`{"run_shell": {"git *": "allow"}}`）
+  - `check()` 用 `fnmatch` 做 wildcard 匹配，`findLast` 语义（后出现优先级更高），未匹配默认 `ask`
+  - `approve()` 存 `(tool_name, pattern)` 而非只存 `tool_name`，实现"同类命令免问"
+  - `_extract_pattern()` 从 args 提取 pattern（文件工具提取 path，run_shell 提取 command，其他返回 `*`）
+- `tests/test_tools.py`：新增 4 个二维权限测试（pattern allow/deny 覆盖、always 存 pattern、findLast 优先级）
+
+### Why
+- v0.4 的一维权限只按工具名控制，无法区分 `git status`（安全）和 `rm -rf /`（危险）——所有 `run_shell` 共享同一个 action，粒度太粗。
+- 二维权限按命令模式控制：`git *` 可以 allow，`rm *` 可以 deny，其他 ask。为 v0.10 `run_shell` 工具的命令模式权限铺路。
+- `findLast` 语义让运行时 `approved` 规则（追加在末尾）自然覆盖前面的 `ask` 规则，无需显式删除旧规则。
+- 未匹配默认 `ask` 而非 `allow`——安全优先，新工具默认需要用户确认。
+- 借鉴 OpenCode `PermissionNext` 的 `evaluate` / `fromConfig` / `findLast` 设计，去掉事件总线、pending 队列、持久化——CLI 同步交互不需要。
+- `_extract_pattern()` 对 `run_shell` 返回完整命令字符串作为占位，v0.10 接入 BashArity 后改为泛化模式（如 `git checkout *`），只需改这一个方法。
+
 ## [v0.8] - 文件操作补全
 
 ### Added
